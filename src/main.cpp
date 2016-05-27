@@ -2,7 +2,8 @@
 #include <QLabel>
 #include <QCamera>
 
-#include "camera_frame_grabber.h"
+#include "video_frame_grabber.h"
+#include "image_widget.h"
 
 using namespace laser_painter;
 
@@ -12,14 +13,14 @@ int main(int argc, char *argv[])
     app.setApplicationName("Laser Painter");
 
     QCamera camera;
-    CameraFrameGrabber camera_frame_grabber;
-    camera.setViewfinder(&camera_frame_grabber);
+    VideoFrameGrabber video_frame_grabber;
+    camera.setViewfinder(&video_frame_grabber);
 
-    QLabel label;
-    QObject::connect(&camera_frame_grabber, &CameraFrameGrabber::frameAvailable, &label, &QLabel::setPixmap);
+    ImageWidget image_wgt;
+    QObject::connect(&video_frame_grabber, &VideoFrameGrabber::frameAvailable, &image_wgt, &ImageWidget::setFrame);
 
     camera.start();
-    label.show();
+    image_wgt.show();
 
     return app.exec();
 }

@@ -1,5 +1,6 @@
 set(${PROJECT_NAME}_SOURCES
-    camera_frame_grabber.cpp
+    video_frame_grabber.cpp
+    image_widget.cpp
     main.cpp
 )
 

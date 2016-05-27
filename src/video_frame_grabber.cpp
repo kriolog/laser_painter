@@ -1,14 +1,14 @@
-#include "camera_frame_grabber.h"
+#include "video_frame_grabber.h"
 
 // TMP:
 #include <QPixmap>
 
 namespace laser_painter {
 
-CameraFrameGrabber::CameraFrameGrabber(QObject *parent) :
+VideoFrameGrabber::VideoFrameGrabber(QObject *parent) :
     QAbstractVideoSurface(parent) {}
 
-QList<QVideoFrame::PixelFormat> CameraFrameGrabber::supportedPixelFormats(QAbstractVideoBuffer::HandleType handleType) const
+QList<QVideoFrame::PixelFormat> VideoFrameGrabber::supportedPixelFormats(QAbstractVideoBuffer::HandleType handleType) const
 {
     Q_UNUSED(handleType);
     return QList<QVideoFrame::PixelFormat>()
@@ -46,34 +46,32 @@ QList<QVideoFrame::PixelFormat> CameraFrameGrabber::supportedPixelFormats(QAbstr
         << QVideoFrame::Format_AdobeDng;
 }
 
-bool CameraFrameGrabber::present(const QVideoFrame& frame)
+bool VideoFrameGrabber::present(const QVideoFrame& frame)
 {
-    if (frame.isValid()) {
-        QVideoFrame frame_shallow_copy(frame);
-        // Map to CPU
-        frame_shallow_copy.map(QAbstractVideoBuffer::ReadOnly);
-
-        // TODO: add support for YUV formats.
-        const QImage image(
-            frame_shallow_copy.bits(),
-            frame_shallow_copy.width(),
-            frame_shallow_copy.height(),
-            frame_shallow_copy.bytesPerLine(),
-            // Warning: QImage::Format_Invalid will be returned for unsupported
-            // formats (as YUV formats).
-            QVideoFrame::imageFormatFromPixelFormat(frame_shallow_copy.pixelFormat())
-        );
-        // TMP:
-        QPixmap frame_pixmap;
-        frame_pixmap.convertFromImage(image);
-        emit frameAvailable(frame_pixmap);
-
-        // Unmap from CPU
-        frame_shallow_copy.unmap();
-        return true;
+    if (!frame.isValid()) {
+        emit frameAvailable(QImage());
+        return false;
     }
-    // TODO: emit an empty image
-    return false;
+
+    QVideoFrame frame_shallow_copy(frame);
+    // Map to CPU
+    frame_shallow_copy.map(QAbstractVideoBuffer::ReadOnly);
+
+    // TODO: add support for YUV formats.
+    const QImage frame_image(
+        frame_shallow_copy.bits(),
+        frame_shallow_copy.width(),
+        frame_shallow_copy.height(),
+        frame_shallow_copy.bytesPerLine(),
+        // Warning: QImage::Format_Invalid will be returned for unsupported
+        // formats (as YUV formats).
+        QVideoFrame::imageFormatFromPixelFormat(frame_shallow_copy.pixelFormat())
+    );
+    emit frameAvailable(frame_image);
+
+    // Unmap from CPU
+    frame_shallow_copy.unmap();
+    return true;
 }
 
-} // laser_painter
+} // namespace laser_painter

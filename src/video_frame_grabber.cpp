@@ -1,8 +1,5 @@
 #include "video_frame_grabber.h"
 
-// TMP:
-#include <QPixmap>
-
 namespace laser_painter {
 
 VideoFrameGrabber::VideoFrameGrabber(QObject *parent) :

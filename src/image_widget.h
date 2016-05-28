@@ -16,15 +16,15 @@ public:
     explicit ImageWidget(QWidget* parent = 0, Qt::WindowFlags f = 0);
 
 public slots:
-    /// Repaint with a new frame @param frame.
-    void setFrame(const QImage& frame);
+    /// Repaint with a new frame @param image.
+    void setImage(const QImage& image);
 
 protected:
     void paintEvent(QPaintEvent* event);
 
 private:
     // Current frame to paint.
-    QImage _current_frame;
+    QImage _current_image;
 };
 
 } // namespace laser_painter

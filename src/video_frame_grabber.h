@@ -25,7 +25,7 @@ public:
     bool present(const QVideoFrame& frame);
 
 signals:
-    /// Emits a new available frame image @param frame.
+    /// Emit a new available frame image @param frame.
     void frameAvailable(const QImage& frame);
 };
 

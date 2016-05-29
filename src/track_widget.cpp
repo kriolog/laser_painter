@@ -10,17 +10,19 @@ TrackWidget::TrackWidget
 (
     const QSize& canvas_size,
     uint max_delay,
-    int track_max_size,
+    int max_track_size,
     QWidget* parent,
     Qt::WindowFlags f
 ) :
     QWidget(parent, f),
     _track(),
-    _max_track_size(track_max_size),
+    _max_track_size(max_track_size),
     _delay(0),
     _max_delay(max_delay),
     _canvas_size(canvas_size)
 {
+    Q_ASSERT(_max_track_size > 0);
+
     QPalette palette = this->palette();
     palette.setColor(QPalette::Background, Qt::black);
     setPalette(palette);

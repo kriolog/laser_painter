@@ -54,7 +54,10 @@ bool VideoFrameGrabber::present(const QVideoFrame& frame)
     // Map to CPU
     frame_shallow_copy.map(QAbstractVideoBuffer::ReadOnly);
 
-    // TODO: add support for YUV formats.
+    // TODO: add support for YUV formats. For YUV2RGB conversion see:
+    // https://en.wikipedia.org/wiki/YUV
+    // http://gitlia.univ-avignon.fr/bostx/tv-series-processing-tool/raw/master/Convert.cpp
+    // https://github.com/openpeer/libyuv
     const QImage frame_image(
         frame_shallow_copy.bits(),
         frame_shallow_copy.width(),

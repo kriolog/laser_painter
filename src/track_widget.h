@@ -19,7 +19,7 @@ public:
     (
         const QSize& canvas_size,
         uint max_delay,
-        int track_max_size,
+        int max_track_size,
         QWidget* parent = 0,
         Qt::WindowFlags f = 0
     );

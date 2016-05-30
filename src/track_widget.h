@@ -15,11 +15,17 @@ class TrackWidget: public QWidget
     Q_OBJECT
 
 public:
+    /// @param max_delay maximal time between two successive addings of points (in
+    /// When elapsed, a new track starts
+    /// @param max_track_size maximal size of recorded track. If exceeded, the
+    /// first added track point is removed each time.
+    /// @param canvas_size size of canvas, should be consistent with
+    /// coordinates of adding points.
     explicit TrackWidget
     (
-        const QSize& canvas_size,
-        uint max_delay,
-        int max_track_size,
+        uint max_delay = 0,
+        int max_track_size = 2,
+        const QSize& canvas_size = QSize(),
         QWidget* parent = 0,
         Qt::WindowFlags f = 0
     );

@@ -1,6 +1,7 @@
 #include <QApplication>
 #include <QLabel>
 #include <QCamera>
+#include <QCameraImageCapture>
 
 #include "video_frame_grabber.h"
 #include "laser_detector.h"
@@ -17,6 +18,11 @@ int main(int argc, char *argv[])
     QCamera camera;
     VideoFrameGrabber video_frame_grabber;
     camera.setViewfinder(&video_frame_grabber);
+    QCameraImageCapture image_capture(&camera);
+    QImageEncoderSettings image_settings;
+//     imageSettings.setCodec("image/jpeg");
+    image_settings.setResolution(640, 480);
+    image_capture.setEncodingSettings(image_settings);
 
     ImageWidget image_wgt;
     QObject::connect(&video_frame_grabber, &VideoFrameGrabber::frameAvailable, &image_wgt, &ImageWidget::setImage);
@@ -30,7 +36,7 @@ int main(int argc, char *argv[])
         255, // value_max
         5 // blob_closing_size
     );
-    TrackWidget track_widget(QSize(200,300), 10, 100);
+    TrackWidget track_widget(100, 1000, image_capture.encodingSettings().resolution());
     QObject::connect(&video_frame_grabber, &VideoFrameGrabber::frameAvailable, &laser_detector, &LaserDetector::run);
     QObject::connect(&laser_detector, SIGNAL(laserPosition(const QPointF&, bool)), &track_widget, SLOT(addTip(const QPointF&, bool)));
 

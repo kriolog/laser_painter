@@ -152,7 +152,7 @@ void LaserDetector::run(const QImage& image) const
         return;
     }
 
-    emit(QPointF(moments.m10 / moments.m00, moments.m10 / moments.m00));
+    emit laserPosition(QPointF(moments.m10 / moments.m00, moments.m01 / moments.m00));
 }
 
 void LaserDetector::setHueRange(uchar min, uchar max)

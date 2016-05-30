@@ -8,9 +8,9 @@ namespace laser_painter {
 
 TrackWidget::TrackWidget
 (
-    const QSize& canvas_size,
     uint max_delay,
     int max_track_size,
+    const QSize& canvas_size,
     QWidget* parent,
     Qt::WindowFlags f
 ) :
@@ -67,9 +67,25 @@ void TrackWidget::paintEvent(QPaintEvent* event)
 {
     Q_UNUSED(event);
 
+    if(_canvas_size.isEmpty())
+        return;
+
     QPainter painter(this);
-    painter.setPen(QPen(Qt::magenta));
-    painter.drawPolygon(_track);
+    painter.setRenderHint(QPainter::Antialiasing);
+    QPen pen(Qt::magenta);
+    pen.setWidth(3);
+    painter.setPen(pen);
+
+    qreal scale_x = static_cast<qreal>(width()) / _canvas_size.width();
+    qreal scale_y = static_cast<qreal>(height()) / _canvas_size.height();
+    qreal scale = scale_x < scale_y ? scale_x : scale_y;
+    painter.translate(
+        (width() - scale * _canvas_size.width()) / 2.,
+        (height() - scale * _canvas_size.height()) / 2.
+    );
+    painter.scale(scale, scale);
+
+    painter.drawPolyline(_track);
 }
 
 } // namespace laser_painter

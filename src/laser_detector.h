@@ -9,6 +9,7 @@ class QSize;
 
 namespace cv {
     class Mat;
+    class Moments;
 }
 
 namespace laser_painter {
@@ -34,7 +35,9 @@ public:
     /// @param with_circularity_filter filter by circularity range of the
     /// detected blob. Circularity is 4*Pi*area/perimeter^2 and runs from
     /// zero (bar) to one (circle). min <= max.
-
+    ///
+    /// @param emit_filtered_images emit filtered binary images of hue,
+    /// saturation, vlaue, and output blob(s).
     explicit LaserDetector
     (
         uchar hue_min = 0,
@@ -54,6 +57,8 @@ public:
         uint blob_circularity_min = 0,
         uint blob_circularity_max = 0,
 
+        bool emit_filtered_images = false,
+
         QObject* parent = 0
     );
 
@@ -65,30 +70,37 @@ public slots:
     /// @see LaserDetector()
     void setHueRange(uchar min, uchar max);
     /// @see LaserDetector()
-    void setSaturationParams(uchar min, uchar max);
+    void setSaturationRange(uchar min, uchar max);
     /// @see LaserDetector()
     void setValueRange(uchar min, uchar max);
     /// @see LaserDetector()
-    void setAreaFilterParams(bool enable, uint min = 0, uint max = 0);
-    /// @see LaserDetector()
-    void setCircularityFilterParams(bool enable, uint min = 0, uint max = 0);
-    /// @see LaserDetector()
     void setBlobClosingSize(uint size);
+    /// @see LaserDetector()
+    void setBlobAreaParams(bool enable, uint min = 0, uint max = 0);
+    /// @see LaserDetector()
+    void setBlobCircularityParams(bool enable, double min = 0, double max = 0);
+    /// @see LaserDetector()
+    void setEmitFilteredImages(bool do_emit);
 
 signals:
     /// Emit a laser dot position @param pos in the input image of
     /// size @param canvas_size and @param found = true if one and only one
     /// laser dot candidate has been found, otherwise return @param found = false.
     void laserPosition(const QPointF& pos, bool found = true) const;
+    /// Binary image of the filtered hue component.
+    void hueFilteredAvailable(const QImage& hue) const;
+    void saturationFilteredAvailable(const QImage& saturation) const;
+    void valueFilteredAvailable(const QImage& value) const;
+    void blobsFilteredAvailable(const QImage& blobs) const;
 
 private:
-    // Convert QImage @param image to a HSV cv::Mat
+    // Compute center by moments. Area (m00) should be positive.
+    inline QPointF center(const cv::Moments& moments) const;
+    // Convert a QImage @param image to a RGB cv::Mat
     cv::Mat QImage2cvMat(const QImage& image) const;
-
-    // Binary threshold {0, 1} of the @param src in the range [min, max].
-    // Result is saved to the @param dst.
-    // @param src and @param dst should have CV_8U type.
-    inline void thresholdInRnage(const cv::Mat& src, cv::Mat& dst, uchar min, uchar max) const;
+    // Nowmalize a CV_8U cv::Mat @param mat to black/white (0/255) and convert
+    // to a grayscale QImage
+    QImage cvMat2QImageBin(const cv::Mat& mat) const;
 
 private:
     // HSV ranges for thresholding and other parameters.
@@ -106,8 +118,10 @@ private:
     uint _blob_area_max;
 
     bool _with_circularity_filter;
-    uint _blob_circularity_min;
-    uint _blob_circularity_max;
+    double _blob_circularity_min;
+    double _blob_circularity_max;
+
+    bool _emit_filtered_images;
 };
 
 } // namespace laser_painter

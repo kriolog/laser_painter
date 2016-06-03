@@ -45,7 +45,7 @@ public:
     (
         uchar hue_min = 0,
         uchar hue_max = 179,
-        bool with_saturation = false,
+        bool with_saturation = true,
         uchar saturation_min = 0,
         uchar saturation_max = 255,
         uchar value_min = 0,

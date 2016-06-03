@@ -1,8 +1,10 @@
 set(${PROJECT_NAME}_SOURCES
     video_frame_grabber.cpp
+    image_modifier.cpp
     laser_detector.cpp
     laser_detector_settings.cpp
     image_widget.cpp
+    roi_image_widget.cpp
     track_widget.cpp
     main.cpp
 )

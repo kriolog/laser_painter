@@ -17,7 +17,9 @@ void ImageWidget::setImage(const QImage& image)
     // Prescale the image to fit the widget size before painting.
     // TODO: it's possible to save a QSharedPointer to the original image
     // and use painter->setTransform() in order to avoid this image copy.
-    _current_image = image.scaled(size(), Qt::KeepAspectRatio);
+    _image = image.scaled(size(), Qt::KeepAspectRatio);
+    _image_origin.setX((width() - _image.width()) / 2);
+    _image_origin.setY((height() - _image.height()) / 2);
     repaint();
 }
 
@@ -25,15 +27,11 @@ void ImageWidget::paintEvent(QPaintEvent* event)
 {
     Q_UNUSED(event);
 
-    if(_current_image.isNull()) {
+    if(_image.isNull())
         return;
-    }
 
     QPainter painter(this);
-    QPoint center;
-    center.setX((width() - _current_image.width()) / 2);
-    center.setY((height() - _current_image.height()) / 2);
-    painter.drawImage(center, _current_image);
+    painter.drawImage(_image_origin, _image);
 }
 
 } // namespace laser_painter

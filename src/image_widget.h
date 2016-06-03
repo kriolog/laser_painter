@@ -22,9 +22,10 @@ public slots:
 protected:
     void paintEvent(QPaintEvent* event);
 
-private:
+protected:
     // Current frame to paint.
-    QImage _current_image;
+    QImage _image;
+    QPoint _image_origin;
 };
 
 } // namespace laser_painter

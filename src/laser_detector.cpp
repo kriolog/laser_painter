@@ -34,6 +34,7 @@ LaserDetector::LaserDetector
     QObject(parent)
 {
     setHueRange(hue_min, hue_max);
+    setWithSaturation(with_saturation);
     setSaturationRange(saturation_min, saturation_max);
     setValueRange(value_min, value_max);
     setBlobClosingSize(blob_closing_size);

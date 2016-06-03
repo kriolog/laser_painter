@@ -4,9 +4,10 @@
 #include <QCameraImageCapture>
 
 #include "video_frame_grabber.h"
+#include "image_modifier.h"
 #include "laser_detector.h"
 #include "laser_detector_settings.h"
-#include "image_widget.h"
+#include "roi_image_widget.h"
 #include "track_widget.h"
 
 using namespace laser_painter;
@@ -25,16 +26,21 @@ int main(int argc, char *argv[])
     image_settings.setResolution(640, 480);
     image_capture.setEncodingSettings(image_settings);
 
-    ImageWidget image_wgt;
-    QObject::connect(&video_frame_grabber, &VideoFrameGrabber::frameAvailable, &image_wgt, &ImageWidget::setImage);
+    ROIImageWidget roi_image_wgt;
+    QObject::connect(&video_frame_grabber, &VideoFrameGrabber::frameAvailable, &roi_image_wgt, &ROIImageWidget::setImage);
+
+    ImageModifier image_modifier;
+    QObject::connect(&roi_image_wgt, &ROIImageWidget::roiChanged, &image_modifier, &ImageModifier::setROI);
+    QObject::connect(&video_frame_grabber, &VideoFrameGrabber::frameAvailable, &image_modifier, &ImageModifier::run);
 
     LaserDetector laser_detector;
+    QObject::connect(&image_modifier, &ImageModifier::imageAvailable, &laser_detector, &LaserDetector::run);
+
     TrackWidget track_widget(100, 1000, image_capture.encodingSettings().resolution());
-    QObject::connect(&video_frame_grabber, &VideoFrameGrabber::frameAvailable, &laser_detector, &LaserDetector::run);
     QObject::connect(&laser_detector, SIGNAL(laserPosition(const QPointF&, bool)), &track_widget, SLOT(addTip(const QPointF&, bool)));
 
     camera.start();
-    image_wgt.show();
+    roi_image_wgt.show();
     track_widget.show();
 
     LaserDetectorSettings laser_detector_settings(laser_detector);

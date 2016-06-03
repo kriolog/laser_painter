@@ -122,6 +122,9 @@ LaserDetectorSettings::LaserDetectorSettings(
     saturation_lo->addLayout(saturation_span_lo);
     saturation_lo->addWidget(saturation_img_wgt);
     QGroupBox* saturation_gb = new QGroupBox(tr("Saturation"));
+    saturation_gb->setCheckable(true);
+    connect(saturation_gb, &QGroupBox::toggled, &laser_detector, &LaserDetector::setWithSaturation);
+    saturation_gb->setChecked(true);
     saturation_gb->setLayout(saturation_lo);
 
     //////// VALUE ////////

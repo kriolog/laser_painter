@@ -26,6 +26,9 @@ public:
     /// For saturation and value, min <= max. Hue is circular: for instance,
     /// range min = 179 and max = 1 means the red color with hue = {179, 0, 1}.
     ///
+    /// @param with_saturation use the saturation channel for the laser blob
+    /// detection.
+    ///
     /// @param blob_closing_size is a kernel size for morphological closing for
     /// the detected laser blob(s) candidates before filtering. If zero,
     /// no closing will be performed.
@@ -42,6 +45,7 @@ public:
     (
         uchar hue_min = 0,
         uchar hue_max = 179,
+        bool with_saturation = false,
         uchar saturation_min = 0,
         uchar saturation_max = 255,
         uchar value_min = 0,
@@ -69,6 +73,8 @@ public slots:
 
     /// @see LaserDetector()
     void setHueRange(uchar min, uchar max);
+    /// @see LaserDetector()
+    void setWithSaturation(bool enabled);
     /// @see LaserDetector()
     void setSaturationRange(uchar min, uchar max);
     /// @see LaserDetector()
@@ -106,6 +112,7 @@ private:
     // HSV ranges for thresholding and other parameters.
     uchar _hue_min;
     uchar _hue_max;
+    bool _with_saturation;
     uchar _saturation_min;
     uchar _saturation_max;
     uchar _value_min;

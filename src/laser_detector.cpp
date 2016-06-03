@@ -16,6 +16,7 @@ LaserDetector::LaserDetector
 (
     uchar hue_min,
     uchar hue_max,
+    bool with_saturation,
     uchar saturation_min,
     uchar saturation_max,
     uchar value_min,
@@ -66,7 +67,10 @@ void LaserDetector::run(const QImage& image) const
         *h = *h <= _hue_max | *h >= _hue_min;
 
     // Saturation
-    *s = *s >= _saturation_min & *s <= _saturation_max;
+    if(_with_saturation)
+        *s = *s >= _saturation_min & *s <= _saturation_max;
+    else
+        s->setTo(0);
 
     // Value
     *v = *v >= _value_min & *v <= _value_max;
@@ -80,8 +84,9 @@ void LaserDetector::run(const QImage& image) const
 
     // Detected blob(s)
     cv::Mat blob;
-    cv::bitwise_and(*h, *s, blob);
-    cv::bitwise_and(blob, *v, blob);
+    cv::bitwise_and(*h, *v, blob);
+    if(_with_saturation)
+        cv::bitwise_and(blob, *s, blob);
 
     // Close detected blobs
     if(_blob_closing_size > 0)
@@ -124,6 +129,7 @@ void LaserDetector::run(const QImage& image) const
     // passed filtering or -2 if more than one contour passed filtering.
     int laser_blob_contour_id = -1;
     if(_emit_filtered_images)
+        // Clear before drawing contours
         blob.setTo(0);
     for(size_t i = 0, size = contours.size(); i < size; ++i) {
         cv::Moments moments = cv::moments(contours[i]);
@@ -191,6 +197,11 @@ void LaserDetector::setHueRange(uchar min, uchar max)
 
     _hue_min = min;
     _hue_max = max;
+}
+
+void LaserDetector::setWithSaturation(bool enabled)
+{
+    _with_saturation = enabled;
 }
 
 void LaserDetector::setSaturationRange(uchar min, uchar max)

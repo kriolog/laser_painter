@@ -11,6 +11,9 @@ ROIImageWidget::ROIImageWidget(QWidget* parent, Qt::WindowFlags f)
     _selection(new QRubberBand(QRubberBand::Rectangle, this))
 {
     selectEntireImage();
+    QPalette palette;
+    palette.setBrush(QPalette::Highlight, QBrush(Qt::magenta));
+    _selection->setPalette(palette);
     _selection->show();
 }
 
@@ -59,7 +62,7 @@ void ROIImageWidget::mouseReleaseEvent(QMouseEvent *event)
 
 void ROIImageWidget::keyPressEvent(QKeyEvent *event)
 {
-    if(event->key() == Qt::Key_Escape)
+    if(event->key() == Qt::Key_Escape || event->key() == Qt::Key_Space)
         selectEntireImage();
 }
 

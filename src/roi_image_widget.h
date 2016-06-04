@@ -19,25 +19,31 @@ public slots:
     void setImage(const QImage& image);
 
 signals:
-    /// Region of interest is changed to @param roi. @param image_size is
-    /// the size of the input image.
+    /// Region of interest is changed to @param roi.
     void roiChanged(const QRect& roi) const;
 
 protected:
-    // Rubber band handling
+    // Selection handling
     void mousePressEvent(QMouseEvent* event);
     void mouseMoveEvent(QMouseEvent* event);
     void mouseReleaseEvent(QMouseEvent* event);
     void keyPressEvent(QKeyEvent *event);
 
 private:
-    void selectEntireImage();
+    void selectEntireImage(bool update_roi = true);
+    // Update the input image size and scale roi to fit the new size.
+    void updateInputGeometry(const QSize& input_image_size);
+    void updateSelectionFromROI();
+    void updateROIFromSelection();
 
 private:
-    // Current frame to paint.
-    QRubberBand* _rubber_band;
-    QPoint _rubber_band_origin;
     QSize _input_image_size;
+    // Region of interest (in a coordinate system of the input image)
+    QRect _roi;
+    // Current frame to paint.
+    QRubberBand* _selection;
+    // For mouse events only.
+    QPoint _selection_origin;
 };
 
 } // namespace laser_painter

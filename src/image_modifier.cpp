@@ -19,7 +19,9 @@ void ImageModifier::run(const QImage& image) const
     if(_scale != 1.)
         result = result.scaled(result.width() * _scale, result.height() * _scale);
 
-    emit imageAvailable(result);
+    if(!result.isNull())
+        // Small images can become null after scale.
+        emit imageAvailable(result);
 }
 
 void ImageModifier::setROI(const QRect& roi)

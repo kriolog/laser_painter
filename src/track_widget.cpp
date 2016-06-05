@@ -3,6 +3,7 @@
 #include <QPainter>
 #include <QPointF>
 #include <QSize>
+#include <QTimer>
 
 namespace laser_painter {
 
@@ -19,13 +20,20 @@ TrackWidget::TrackWidget
     _max_track_size(max_track_size),
     _delay(0),
     _max_delay(max_delay),
-    _canvas_size(canvas_size)
+    _canvas_size(canvas_size),
+    _old_track(),
+    _show_old_track(false),
+    _old_track_opacity(255)
 {
     Q_ASSERT(_max_track_size > 0);
 
     QPalette palette = this->palette();
     palette.setColor(QPalette::Background, Qt::black);
     setPalette(palette);
+
+    _fade_timer = new QTimer(this);
+    _fade_timer->setInterval(_fade_timer_interval);
+    connect(_fade_timer, &QTimer::timeout, this, &TrackWidget::updateOldTrackOpacity);
 }
 
 void TrackWidget::addTip(const QPointF& pos, bool found)
@@ -45,7 +53,12 @@ void TrackWidget::addTip(const QPointF& pos, bool found)
 
 void TrackWidget::startNewTrack()
 {
-    _track.clear();
+    if(_show_old_track)
+        stopShowOldTrack();
+    _old_track.clear();
+    _track.swap(_old_track);
+    _show_old_track = true;
+    _fade_timer->start();
     repaint();
 }
 
@@ -86,6 +99,29 @@ void TrackWidget::paintEvent(QPaintEvent* event)
     painter.scale(scale, scale);
 
     painter.drawPolyline(_track);
+
+    if(_show_old_track) {
+        QColor pen_color = pen.color();
+        pen_color.setAlpha(_old_track_opacity);
+        pen.setColor(pen_color);
+        painter.setPen(pen);
+        painter.drawPolyline(_old_track);
+    }
+}
+
+void TrackWidget::updateOldTrackOpacity()
+{
+    if(_old_track_opacity <= _fade_opacity_step)
+        stopShowOldTrack();
+    _old_track_opacity -= _fade_opacity_step;
+    repaint();
+}
+
+void TrackWidget::stopShowOldTrack()
+{
+    _old_track_opacity = 255;
+    _fade_timer->stop();
+    _show_old_track = false;
 }
 
 } // namespace laser_painter

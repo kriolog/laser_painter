@@ -8,6 +8,7 @@
 
 class QPaintEvent;
 class QPointF;
+class QTimer;
 
 namespace laser_painter {
 
@@ -48,6 +49,10 @@ private:
     /// Add a new tip to the current track.
     void addTip(const QPointF& pos);
 
+private slots:
+    void updateOldTrackOpacity();
+    void stopShowOldTrack();
+
 private:
     QPolygonF _track;
     int _max_track_size;
@@ -56,6 +61,15 @@ private:
     // maximum delay.
     uint _max_delay;
     QSize _canvas_size;
+
+    QTimer* _fade_timer;
+    QPolygonF _old_track;
+    bool _show_old_track;
+    uchar _old_track_opacity;
+    static const int _fade_animation_time = 1024 * 1; // milliseconds
+    static const int _fade_nb_steps = 32 * (_fade_animation_time / 1024);
+    static const int _fade_timer_interval = _fade_animation_time / _fade_nb_steps;
+    static const int _fade_opacity_step = 256 / _fade_nb_steps;
 };
 
 } // namespace laser_painter

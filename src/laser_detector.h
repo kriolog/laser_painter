@@ -43,6 +43,8 @@ public:
     /// saturation, vlaue, and output blob(s).
     explicit LaserDetector
     (
+        QObject* parent = 0,
+
         uchar hue_min = 0,
         uchar hue_max = 179,
         bool with_saturation = true,
@@ -61,9 +63,7 @@ public:
         uint blob_circularity_min = 0,
         uint blob_circularity_max = 0,
 
-        bool emit_filtered_images = false,
-
-        QObject* parent = 0
+        bool emit_filtered_images = false
     );
 
 public slots:

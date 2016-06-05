@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QPolygonF>
 #include <QSize>
+#include <QRect>
 
 class QPaintEvent;
 class QPointF;
@@ -15,19 +16,18 @@ class TrackWidget: public QWidget
     Q_OBJECT
 
 public:
-    /// @param max_delay maximal time between two successive addings of points (in
+    /// @param max_delay maximal time between two successive addings of points
     /// When elapsed, a new track starts
     /// @param max_track_size maximal size of recorded track. If exceeded, the
     /// first added track point is removed each time.
-    /// @param canvas_size size of canvas, should be consistent with
-    /// coordinates of adding points.
+    /// @param canvas_size size of canvas
     explicit TrackWidget
     (
         uint max_delay = 0,
         int max_track_size = 2,
         const QSize& canvas_size = QSize(),
         QWidget* parent = 0,
-        Qt::WindowFlags f = 0
+        Qt::WindowFlags flags = 0
     );
 
 public slots:

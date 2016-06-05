@@ -1,7 +1,6 @@
 #include "image_modifier.h"
 
 #include <QImage>
-#include <QDebug>
 
 namespace laser_painter {
 
@@ -13,9 +12,10 @@ ImageModifier::ImageModifier(QObject* parent)
 
 void ImageModifier::run(const QImage& image) const
 {
-    Q_ASSERT(QRect(QPoint(), image.size()).contains(_roi));
+    if(image.isNull() || !QRect(QPoint(), image.size()).contains(_roi))
+        return;
 
-    QImage result = _roi.isNull() ? image : image.copy(_roi);
+    QImage result = (_roi.isEmpty() || image.size() == _roi.size()) ? image : image.copy(_roi);
     if(_scale != 1.)
         result = result.scaled(result.width() * _scale, result.height() * _scale);
 

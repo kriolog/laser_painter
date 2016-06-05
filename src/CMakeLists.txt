@@ -1,7 +1,9 @@
 set(${PROJECT_NAME}_SOURCES
+    main_window.cpp
     video_frame_grabber.cpp
     image_modifier.cpp
     laser_detector.cpp
+    point_modifier.cpp
     laser_detector_settings.cpp
     image_widget.cpp
     roi_image_widget.cpp

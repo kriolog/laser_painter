@@ -1,5 +1,6 @@
 #include "laser_detector_settings.h"
 
+#include <QSettings>
 #include <QLabel>
 #include <QSlider>
 #include <QSpinBox>
@@ -14,20 +15,24 @@
 namespace laser_painter {
 
 LaserDetectorSettings::LaserDetectorSettings(
-    const LaserDetector& laser_detector,
+    LaserDetector* laser_detector,
     QWidget* parent, Qt::WindowFlags f
 )
     : QWidget(parent, f)
 {
+    Q_ASSERT(laser_detector);
+
+    QSettings settings;
+
     // Connections of settings with the laser detector
-    connect(this, &LaserDetectorSettings::hueRangeChanged, &laser_detector, &LaserDetector::setHueRange);
-    connect(this, &LaserDetectorSettings::saturationRangeChanged, &laser_detector, &LaserDetector::setSaturationRange);
-    connect(this, &LaserDetectorSettings::valueRangeChanged, &laser_detector, &LaserDetector::setValueRange);
-    connect(this, &LaserDetectorSettings::blobClosingSizeChanged, &laser_detector, &LaserDetector::setBlobClosingSize);
-    connect(this, &LaserDetectorSettings::blobAreaParamsChanged, &laser_detector, &LaserDetector::setBlobAreaParams);
-    connect(this, &LaserDetectorSettings::blobCircularityParamsChanged, &laser_detector, &LaserDetector::setBlobCircularityParams);
+    connect(this, &LaserDetectorSettings::hueRangeChanged, laser_detector, &LaserDetector::setHueRange);
+    connect(this, &LaserDetectorSettings::saturationRangeChanged, laser_detector, &LaserDetector::setSaturationRange);
+    connect(this, &LaserDetectorSettings::valueRangeChanged, laser_detector, &LaserDetector::setValueRange);
+    connect(this, &LaserDetectorSettings::blobClosingSizeChanged, laser_detector, &LaserDetector::setBlobClosingSize);
+    connect(this, &LaserDetectorSettings::blobAreaParamsChanged, laser_detector, &LaserDetector::setBlobAreaParams);
+    connect(this, &LaserDetectorSettings::blobCircularityParamsChanged, laser_detector, &LaserDetector::setBlobCircularityParams);
     // Laser detector emits binary images for settings calibration when the widget is visible.
-    connect(this, &LaserDetectorSettings::visible, &laser_detector, &LaserDetector::setEmitFilteredImages);
+    connect(this, &LaserDetectorSettings::visible, laser_detector, &LaserDetector::setEmitFilteredImages);
 
 
     // TODO : factorize hue, saturation, value settings creation.
@@ -39,8 +44,6 @@ LaserDetectorSettings::LaserDetectorSettings(
     _hue_mean_sb->setRange(0, 179);
     connect(hue_mean_sl, SIGNAL(valueChanged(int)), _hue_mean_sb, SLOT(setValue(int)));
     connect(_hue_mean_sb, SIGNAL(valueChanged(int)), hue_mean_sl, SLOT(setValue(int)));
-    connect(_hue_mean_sb, SIGNAL(valueChanged(int)), this, SLOT(computeHueRange()));
-    _hue_mean_sb->setValue(0);
     QLabel* hue_mean_lb = new QLabel(tr("Mean"));
     hue_mean_lb->setBuddy(_hue_mean_sb);
     hue_mean_lb->setToolTip(tr("Hue corresponds to the laser wavelength.\nReference values:\n0 for a red laser\n60 for a green laser\n120 for a blue laser"));
@@ -52,14 +55,17 @@ LaserDetectorSettings::LaserDetectorSettings(
     _hue_span_sb->setRange(1, 180);
     connect(hue_span_sl, SIGNAL(valueChanged(int)), _hue_span_sb, SLOT(setValue(int)));
     connect(_hue_span_sb, SIGNAL(valueChanged(int)), hue_span_sl, SLOT(setValue(int)));
-    connect(_hue_span_sb, SIGNAL(valueChanged(int)), this, SLOT(computeHueRange()));
-    _hue_span_sb->setValue(42);
     QLabel* hue_span_lb = new QLabel(tr("Span"));
     hue_span_lb->setBuddy(_hue_span_sb);
     hue_span_lb->setToolTip(tr("Hue span = maximum - minimum + 1."));
 
+    connect(_hue_mean_sb, SIGNAL(valueChanged(int)), this, SLOT(computeHueRange()));
+    connect(_hue_span_sb, SIGNAL(valueChanged(int)), this, SLOT(computeHueRange()));
+    _hue_mean_sb->setValue(settings.value("LaserDetectorSettings/hue_mean", 0).toInt());
+    _hue_span_sb->setValue(settings.value("LaserDetectorSettings/hue_span", 42).toInt());
+
     ImageWidget* hue_img_wgt = new ImageWidget();
-    connect(&laser_detector, &LaserDetector::hueFilteredAvailable, hue_img_wgt, &ImageWidget::setImage);
+    connect(laser_detector, &LaserDetector::hueFilteredAvailable, hue_img_wgt, &ImageWidget::setImage);
 
     QHBoxLayout* hue_mean_lo = new QHBoxLayout();
     hue_mean_lo->addWidget(hue_mean_lb);
@@ -86,8 +92,6 @@ LaserDetectorSettings::LaserDetectorSettings(
     _saturation_mean_sb->setRange(0, 255);
     connect(saturation_mean_sl, SIGNAL(valueChanged(int)), _saturation_mean_sb, SLOT(setValue(int)));
     connect(_saturation_mean_sb, SIGNAL(valueChanged(int)), saturation_mean_sl, SLOT(setValue(int)));
-    connect(_saturation_mean_sb, SIGNAL(valueChanged(int)), this, SLOT(computeSaturationRange()));
-    _saturation_mean_sb->setValue(0);
     QLabel* saturation_mean_lb = new QLabel(tr("Mean"));
     saturation_mean_lb->setBuddy(_saturation_mean_sb);
 
@@ -98,14 +102,17 @@ LaserDetectorSettings::LaserDetectorSettings(
     _saturation_span_sb->setRange(1, 256);
     connect(saturation_span_sl, SIGNAL(valueChanged(int)), _saturation_span_sb, SLOT(setValue(int)));
     connect(_saturation_span_sb, SIGNAL(valueChanged(int)), saturation_span_sl, SLOT(setValue(int)));
-    connect(_saturation_span_sb, SIGNAL(valueChanged(int)), this, SLOT(computeSaturationRange()));
-    _saturation_span_sb->setValue(42);
     QLabel* saturation_span_lb = new QLabel(tr("Span"));
     saturation_span_lb->setBuddy(_saturation_span_sb);
     saturation_span_lb->setToolTip(tr("Saturation span = maximum - minimum + 1."));
 
+    connect(_saturation_mean_sb, SIGNAL(valueChanged(int)), this, SLOT(computeSaturationRange()));
+    connect(_saturation_span_sb, SIGNAL(valueChanged(int)), this, SLOT(computeSaturationRange()));
+    _saturation_mean_sb->setValue(settings.value("LaserDetectorSettings/saturation_mean", 0).toInt());
+    _saturation_span_sb->setValue(settings.value("LaserDetectorSettings/saturation_span", 42).toInt());
+
     ImageWidget* saturation_img_wgt = new ImageWidget();
-    connect(&laser_detector, &LaserDetector::saturationFilteredAvailable, saturation_img_wgt, &ImageWidget::setImage);
+    connect(laser_detector, &LaserDetector::saturationFilteredAvailable, saturation_img_wgt, &ImageWidget::setImage);
 
     QHBoxLayout* saturation_mean_lo = new QHBoxLayout();
     saturation_mean_lo->addWidget(saturation_mean_lb);
@@ -121,11 +128,11 @@ LaserDetectorSettings::LaserDetectorSettings(
     saturation_lo->addLayout(saturation_mean_lo);
     saturation_lo->addLayout(saturation_span_lo);
     saturation_lo->addWidget(saturation_img_wgt);
-    QGroupBox* saturation_gb = new QGroupBox(tr("Saturation"));
-    saturation_gb->setCheckable(true);
-    connect(saturation_gb, &QGroupBox::toggled, &laser_detector, &LaserDetector::setWithSaturation);
-    saturation_gb->setChecked(true);
-    saturation_gb->setLayout(saturation_lo);
+    _saturation_gb = new QGroupBox(tr("Saturation"));
+    _saturation_gb->setCheckable(true);
+    connect(_saturation_gb, &QGroupBox::toggled, laser_detector, &LaserDetector::setWithSaturation);
+    _saturation_gb->setChecked(settings.value("LaserDetectorSettings/with_saturation", true).toBool());
+    _saturation_gb->setLayout(saturation_lo);
 
     //////// VALUE ////////
     // Value mean value
@@ -135,8 +142,6 @@ LaserDetectorSettings::LaserDetectorSettings(
     _value_mean_sb->setRange(0, 255);
     connect(value_mean_sl, SIGNAL(valueChanged(int)), _value_mean_sb, SLOT(setValue(int)));
     connect(_value_mean_sb, SIGNAL(valueChanged(int)), value_mean_sl, SLOT(setValue(int)));
-    connect(_value_mean_sb, SIGNAL(valueChanged(int)), this, SLOT(computeValueRange()));
-    _value_mean_sb->setValue(0);
     QLabel* value_mean_lb = new QLabel(tr("Mean"));
     value_mean_lb->setBuddy(_value_mean_sb);
 
@@ -147,14 +152,17 @@ LaserDetectorSettings::LaserDetectorSettings(
     _value_span_sb->setRange(1, 256);
     connect(value_span_sl, SIGNAL(valueChanged(int)), _value_span_sb, SLOT(setValue(int)));
     connect(_value_span_sb, SIGNAL(valueChanged(int)), value_span_sl, SLOT(setValue(int)));
-    connect(_value_span_sb, SIGNAL(valueChanged(int)), this, SLOT(computeValueRange()));
-    _value_span_sb->setValue(42);
     QLabel* value_span_lb = new QLabel(tr("Span"));
     value_span_lb->setBuddy(_value_span_sb);
     value_span_lb->setToolTip(tr("Value span = maximum - minimum + 1."));
 
+    connect(_value_mean_sb, SIGNAL(valueChanged(int)), this, SLOT(computeValueRange()));
+    connect(_value_span_sb, SIGNAL(valueChanged(int)), this, SLOT(computeValueRange()));
+    _value_mean_sb->setValue(settings.value("LaserDetectorSettings/value_mean", 0).toInt());
+    _value_span_sb->setValue(settings.value("LaserDetectorSettings/value_span", 42).toInt());
+
     ImageWidget* value_img_wgt = new ImageWidget();
-    connect(&laser_detector, &LaserDetector::valueFilteredAvailable, value_img_wgt, &ImageWidget::setImage);
+    connect(laser_detector, &LaserDetector::valueFilteredAvailable, value_img_wgt, &ImageWidget::setImage);
 
     QHBoxLayout* value_mean_lo = new QHBoxLayout();
     value_mean_lo->addWidget(value_mean_lb);
@@ -186,8 +194,8 @@ LaserDetectorSettings::LaserDetectorSettings(
 
     connect(_blob_closing_size_sb, SIGNAL(valueChanged(int)), this, SLOT(emitBlobClosingSizeChanged()));
     connect(_blob_closing_size_sb, SIGNAL(valueChanged(int)), this, SLOT(blobClosingSetEnabled(int)));
-    _blob_closing_size_sb->setValue(0);
-    _blob_closing_lb->setEnabled(false);
+    _blob_closing_size_sb->setValue(settings.value("LaserDetectorSettings/blob_closing_size", 0).toInt());
+    blobClosingSetEnabled(_blob_closing_size_sb->value());
 
     //// BLOB AREA ////
     _blob_area_lb = new QLabel(tr("Blob size:"));
@@ -205,9 +213,9 @@ LaserDetectorSettings::LaserDetectorSettings(
     connect(_blob_area_min_sb, SIGNAL(valueChanged(int)), this, SLOT(emitBlobAreaParamsChanged()));
     connect(_blob_area_max_sb, SIGNAL(valueChanged(int)), this, SLOT(emitBlobAreaParamsChanged()));
     connect(_blob_area_max_sb, SIGNAL(valueChanged(int)), this, SLOT(blobAreaLbSetEnabled(int)));
-    _blob_area_min_sb->setValue(0);
-    _blob_area_max_sb->setValue(0);
-    _blob_area_lb->setEnabled(false);
+    _blob_area_min_sb->setValue(settings.value("LaserDetectorSettings/blob_area_min", 0).toInt());
+    _blob_area_max_sb->setValue(settings.value("LaserDetectorSettings/blob_area_max", 0).toInt());
+    blobAreaLbSetEnabled(_blob_area_max_sb->value());
 
     // Blob closing and blob area are in the same horisontal layout.
     QHBoxLayout* blob_closing_area_lo = new QHBoxLayout();
@@ -241,9 +249,9 @@ LaserDetectorSettings::LaserDetectorSettings(
     connect(_blob_circularity_min_sb, SIGNAL(valueChanged(int)), this, SLOT(emitBlobCircularityParamsChanged()));
     connect(_blob_circularity_max_sb, SIGNAL(valueChanged(int)), this, SLOT(emitBlobCircularityParamsChanged()));
     connect(_blob_circularity_max_sb, SIGNAL(valueChanged(int)), this, SLOT(blobCircularitySetEnabled(int)));
-    _blob_circularity_min_sb->setValue(0);
-    _blob_circularity_max_sb->setValue(0);
-    _blob_circularity_lb->setEnabled(false);
+    _blob_circularity_min_sb->setValue(settings.value("LaserDetectorSettings/blob_circularity_min", 0).toInt());
+    _blob_circularity_max_sb->setValue(settings.value("LaserDetectorSettings/blob_circularity_max", 0).toInt());
+    blobCircularitySetEnabled(_blob_circularity_max_sb->value());
 
     QHBoxLayout* blob_circularity_lo = new QHBoxLayout();
     blob_circularity_lo->addWidget(_blob_circularity_lb);
@@ -254,7 +262,7 @@ LaserDetectorSettings::LaserDetectorSettings(
     blob_circularity_lo->addStretch();
 
     ImageWidget* blobs_img_wgt = new ImageWidget();
-    connect(&laser_detector, &LaserDetector::blobsFilteredAvailable, blobs_img_wgt, &ImageWidget::setImage);
+    connect(laser_detector, &LaserDetector::blobsFilteredAvailable, blobs_img_wgt, &ImageWidget::setImage);
 
     QVBoxLayout* blob_filters_lo = new QVBoxLayout();
     blob_filters_lo->addLayout(blob_closing_area_lo);
@@ -272,7 +280,7 @@ LaserDetectorSettings::LaserDetectorSettings(
     QGridLayout* main_lo = new QGridLayout();
     main_lo->addWidget(advice_lb, 0, 0, 1, 2);
     main_lo->addWidget(hue_gb, 1, 0);
-    main_lo->addWidget(saturation_gb, 1, 1);
+    main_lo->addWidget(_saturation_gb, 1, 1);
     main_lo->addWidget(value_gb, 2, 0);
     main_lo->addWidget(blob_filters_gb, 2, 1);
     main_lo->setRowStretch(0, 1);
@@ -369,6 +377,29 @@ void LaserDetectorSettings::blobAreaLbSetEnabled(int enabled)
 void LaserDetectorSettings::blobCircularitySetEnabled(int enabled)
 {
     _blob_circularity_lb->setEnabled(enabled);
+}
+
+
+void LaserDetectorSettings::writeSettings() const
+{
+    QSettings settings;
+    settings.beginGroup("LaserDetectorSettings");
+
+    settings.setValue("hue_mean", _hue_mean_sb->value());
+    settings.setValue("hue_span", _hue_span_sb->value());
+    settings.setValue("with_saturation", _saturation_gb->isChecked());
+    settings.setValue("saturation_mean", _saturation_mean_sb->value());
+    settings.setValue("saturation_span", _saturation_span_sb->value());
+    settings.setValue("value_mean", _value_mean_sb->value());
+    settings.setValue("value_span", _value_span_sb->value());
+
+    settings.setValue("blob_closing_size", _blob_closing_size_sb->value());
+    settings.setValue("blob_area_min", _blob_area_min_sb->value());
+    settings.setValue("blob_area_max", _blob_area_max_sb->value());
+    settings.setValue("blob_circularity_min", _blob_circularity_min_sb->value());
+    settings.setValue("blob_circularity_max", _blob_circularity_max_sb->value());
+
+    settings.endGroup();
 }
 
 } // namespace laser_painter

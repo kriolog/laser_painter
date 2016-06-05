@@ -4,6 +4,7 @@
 #include <QWidget>
 
 class QSpinBox;
+class QGroupBox;
 class QLabel;
 
 namespace laser_painter {
@@ -18,9 +19,11 @@ class LaserDetectorSettings: public QWidget
 
 public:
     explicit LaserDetectorSettings(
-        const LaserDetector& laser_detector,
+        LaserDetector* laser_detector,
         QWidget* parent = 0, Qt::WindowFlags f = 0
     );
+
+    void writeSettings() const;
 
 signals:
     void hueRangeChanged(uchar min, uchar max) const;
@@ -48,6 +51,7 @@ private:
 private:
     QSpinBox* _hue_mean_sb;
     QSpinBox* _hue_span_sb;
+    QGroupBox* _saturation_gb;
     QSpinBox* _saturation_mean_sb;
     QSpinBox* _saturation_span_sb;
     QSpinBox* _value_mean_sb;

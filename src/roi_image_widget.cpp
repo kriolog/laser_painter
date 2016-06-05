@@ -88,7 +88,7 @@ void ROIImageWidget::updateInputGeometry(const QSize& input_image_size)
         );
     }
     _input_image_size = input_image_size;
-    emit roiChanged(_roi);
+    emit roiChanged(_roi, _input_image_size);
 }
 
 void ROIImageWidget::updateSelectionFromROI()
@@ -124,7 +124,7 @@ void ROIImageWidget::updateROIFromSelection()
         _roi = QRect(roi_origin, roi_size)
             .intersected(QRect(QPoint(), _input_image_size));
     }
-    emit roiChanged(_roi);
+    emit roiChanged(_roi, _input_image_size);
 
 }
 

@@ -19,8 +19,9 @@ public slots:
     void setImage(const QImage& image);
 
 signals:
-    /// Region of interest is changed to @param roi.
-    void roiChanged(const QRect& roi) const;
+    /// Region of interest of the image with size @param image_rect is changed
+    /// to @param roi.
+    void roiChanged(const QRect& roi, const QSize& image_rect) const;
 
 protected:
     // Selection handling

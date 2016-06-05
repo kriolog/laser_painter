@@ -14,6 +14,7 @@ namespace laser_painter {
 
 LaserDetector::LaserDetector
 (
+    QObject* parent,
     uchar hue_min,
     uchar hue_max,
     bool with_saturation,
@@ -28,8 +29,7 @@ LaserDetector::LaserDetector
     bool with_circularity_filter,
     uint min_blob_circularity,
     uint max_blob_circularity,
-    bool emit_filtered_images,
-    QObject* parent
+    bool emit_filtered_images
 ) :
     QObject(parent)
 {

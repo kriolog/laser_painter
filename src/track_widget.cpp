@@ -12,9 +12,9 @@ TrackWidget::TrackWidget
     int max_track_size,
     const QSize& canvas_size,
     QWidget* parent,
-    Qt::WindowFlags f
-) :
-    QWidget(parent, f),
+    Qt::WindowFlags flags
+)
+    : QWidget(parent, flags),
     _track(),
     _max_track_size(max_track_size),
     _delay(0),

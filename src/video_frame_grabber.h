@@ -4,6 +4,7 @@
 #include <QAbstractVideoSurface>
 
 class QImage;
+class QCamera;
 
 namespace laser_painter {
 
@@ -23,6 +24,9 @@ public:
     /// Transform the current frame @param frame into a QImage and emit a signal
     /// of its availability.
     bool present(const QVideoFrame& frame);
+
+public slots:
+    void installCamera(QCamera* camera);
 
 signals:
     /// Emit a new available frame image @param frame.

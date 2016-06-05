@@ -1,6 +1,7 @@
 set(${PROJECT_NAME}_SOURCES
     main_window.cpp
     video_frame_grabber.cpp
+    camera_settings.cpp
     image_modifier.cpp
     laser_detector.cpp
     point_modifier.cpp

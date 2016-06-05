@@ -1,5 +1,7 @@
 #include "video_frame_grabber.h"
 
+#include <QCamera>
+
 namespace laser_painter {
 
 VideoFrameGrabber::VideoFrameGrabber(QObject *parent) :
@@ -72,6 +74,15 @@ bool VideoFrameGrabber::present(const QVideoFrame& frame)
     // Unmap from CPU
     frame_shallow_copy.unmap();
     return true;
+}
+
+void VideoFrameGrabber::installCamera(QCamera* camera)
+{
+    Q_ASSERT(camera);
+    if(camera->status() == QCamera::ActiveStatus)
+        camera->stop();
+    camera->setViewfinder(this);
+    camera->start();
 }
 
 } // namespace laser_painter

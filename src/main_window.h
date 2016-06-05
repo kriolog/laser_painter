@@ -5,6 +5,7 @@
 
 namespace laser_painter {
     class LaserDetectorSettings;
+    class CameraSettings;
 }
 
 namespace laser_painter {
@@ -25,6 +26,7 @@ private:
 
 private:
     LaserDetectorSettings* _laser_detector_settings;
+    CameraSettings* _camera_settings;
 };
 
 } // namespace laser_painter

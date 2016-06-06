@@ -57,7 +57,6 @@ void MainWindow::createWidgets()
 void MainWindow::writeSettings()
 {
     QSettings settings;
-    _camera_settings->writeSettings();
     _laser_detector_settings->writeSettings();
 }
 

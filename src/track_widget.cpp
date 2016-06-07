@@ -80,6 +80,7 @@ void TrackWidget::setCanvasSize(const QSize& canvas_size)
 {
     _canvas_size = canvas_size;
     _track.clear(); // prevent painting irrelevant old track after rescaling
+    repaint();
     startNewTrack();
 }
 

@@ -31,6 +31,16 @@ public slots:
 signals:
     /// Emit a new available frame image @param frame.
     void frameAvailable(const QImage& frame);
+
+private:
+    // Convert frames with YUV color schemes with opencv
+    // Supported formats:
+    // Format_YUV444
+    // Format_YUV420P
+    // Format_YV12
+    // Format_UYVY
+    // Format_YUYV
+    QImage YUVQVideoFrame2QImage(const QVideoFrame& frame) const;
 };
 
 } // namespace laser_painter

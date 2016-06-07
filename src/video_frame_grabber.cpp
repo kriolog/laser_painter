@@ -1,6 +1,10 @@
 #include "video_frame_grabber.h"
 
 #include <QCamera>
+#include <QDebug>
+
+#include "opencv2/core/core.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
 
 namespace laser_painter {
 
@@ -56,19 +60,25 @@ bool VideoFrameGrabber::present(const QVideoFrame& frame)
     // Map to CPU
     frame_shallow_copy.map(QAbstractVideoBuffer::ReadOnly);
 
-    // TODO: add support for YUV formats. For YUV2RGB conversion see:
-    // https://en.wikipedia.org/wiki/YUV
-    // http://gitlia.univ-avignon.fr/bostx/tv-series-processing-tool/raw/master/Convert.cpp
-    // https://github.com/openpeer/libyuv
-    const QImage frame_image(
-        frame_shallow_copy.bits(),
-        frame_shallow_copy.width(),
-        frame_shallow_copy.height(),
-        frame_shallow_copy.bytesPerLine(),
-        // Warning: QImage::Format_Invalid will be returned for unsupported
-        // formats (as YUV formats).
-        QVideoFrame::imageFormatFromPixelFormat(frame_shallow_copy.pixelFormat())
-    );
+    QVideoFrame::PixelFormat frame_pixel_format = frame_shallow_copy.pixelFormat();
+    QImage frame_image;
+    if(
+        frame_pixel_format == QVideoFrame::Format_YUV444 ||
+        frame_pixel_format == QVideoFrame::Format_YUV420P ||
+        frame_pixel_format == QVideoFrame::Format_YV12 ||
+        frame_pixel_format == QVideoFrame::Format_UYVY ||
+        frame_pixel_format == QVideoFrame::Format_YUYV
+    )
+        frame_image = YUVQVideoFrame2QImage(frame_shallow_copy);
+    else
+        frame_image = QImage(
+            frame_shallow_copy.bits(),
+            frame_shallow_copy.width(),
+            frame_shallow_copy.height(),
+            frame_shallow_copy.bytesPerLine(),
+            // Warning: QImage::Format_Invalid will be returned for unsupported.
+            QVideoFrame::imageFormatFromPixelFormat(frame_shallow_copy.pixelFormat())
+        );
     emit frameAvailable(frame_image);
 
     // Unmap from CPU
@@ -83,6 +93,36 @@ void VideoFrameGrabber::installCamera(QCamera* camera)
         camera->stop();
     camera->setViewfinder(this);
     camera->start();
+}
+
+QImage VideoFrameGrabber::YUVQVideoFrame2QImage(const QVideoFrame& frame) const
+{
+    cv::ColorConversionCodes cv_color_conversion_code;
+    switch(frame.pixelFormat()) {
+    case QVideoFrame::Format_YUV444:
+        cv_color_conversion_code = cv::COLOR_YCrCb2RGB;
+        break;
+    case QVideoFrame::Format_YUV420P:
+        cv_color_conversion_code = cv::COLOR_YUV2RGB_I420 ;
+        break;
+    case QVideoFrame::Format_YV12:
+        cv_color_conversion_code = cv::COLOR_YUV2RGB_YV12;
+        break;
+    case QVideoFrame::Format_UYVY:
+        cv_color_conversion_code = cv::COLOR_YUV2RGB_UYVY;
+        break;
+    case QVideoFrame::Format_YUYV:
+        cv_color_conversion_code = cv::COLOR_YUV2RGB_YUYV;
+        break;
+    default:
+        qWarning() << "Camera color space format is not supported";
+        return QImage();
+    }
+
+    cv::Mat yuv_mat(frame.height(), frame.width(), CV_8UC3, (void*) frame.bits(), frame.bytesPerLine());
+    cv::Mat rgb_mat;
+    cv::cvtColor(yuv_mat, rgb_mat, cv_color_conversion_code);
+    return QImage((uchar*) rgb_mat.data, rgb_mat.cols, rgb_mat.rows, rgb_mat.step, QImage::Format_RGB888).copy();
 }
 
 } // namespace laser_painter

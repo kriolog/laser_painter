@@ -6,6 +6,8 @@ set(${PROJECT_NAME}_SOURCES
     laser_detector.cpp
     point_modifier.cpp
     laser_detector_settings.cpp
+    tracker_settings.cpp
+    laser_detector_calibration_dialog.cpp
     image_widget.cpp
     roi_image_widget.cpp
     track_widget.cpp

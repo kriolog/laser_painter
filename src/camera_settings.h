@@ -1,9 +1,8 @@
 #ifndef CAMERA_SETTINGS
 #define CAMERA_SETTINGS
 
-#include <QWidget>
+#include <QGroupBox>
 #include <QCameraInfo>
-#include <QSize>
 
 namespace laser_painter {
     class VideoFrameGrabber;
@@ -15,14 +14,14 @@ class QCameraImageCapture;
 
 namespace laser_painter {
 
-class CameraSettings: public QWidget
+class CameraSettings: public QGroupBox
 {
     Q_OBJECT
 
 public:
     explicit CameraSettings(
         VideoFrameGrabber* video_frame_grabber,
-        QWidget* parent = 0, Qt::WindowFlags f = 0
+        QWidget* parent = 0
     );
 
     // TODO: last camera and its resolution.
@@ -32,6 +31,8 @@ signals:
     void cameraChanged(QCamera* camera);
     void resolutionChanged(const QSize& resolution);
 
+public:
+    QSize currentResolution() const;
 private slots:
     // Update available cameras and set a default camera (if any) or a first
     // available camera (if any) if @param try_set_camera is true.
@@ -48,8 +49,6 @@ private:
     QCamera* _camera;
     QCameraImageCapture* _camera_image_capture;
     QCameraInfo _camera_info;
-    QSize _camera_resolution;
-
 };
 
 } // namespace laser_painter

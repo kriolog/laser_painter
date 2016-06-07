@@ -16,14 +16,16 @@ namespace laser_painter {
 
 CameraSettings::CameraSettings(
     VideoFrameGrabber* video_frame_grabber,
-    QWidget* parent, Qt::WindowFlags f
+    QWidget* parent
 )
-    : QWidget(parent, f),
+    : QGroupBox(parent),
     _camera(0),
     _camera_image_capture(0),
     _camera_info()
 {
     Q_ASSERT(video_frame_grabber);
+
+    setTitle(tr("Camera Settings"));
 
     connect(this, &CameraSettings::cameraChanged, video_frame_grabber, &VideoFrameGrabber::installCamera);
 
@@ -37,30 +39,35 @@ CameraSettings::CameraSettings(
 
     _camera_cb = new QComboBox();
     connect(_camera_cb, SIGNAL(activated(int)), this, SLOT(changeCamera()));
-    QLabel* camera_lb = new QLabel(tr("Camera"));
+    QLabel* camera_lb = new QLabel(tr("Camera:"));
     camera_lb->setBuddy(_camera_cb);
 
     _resolution_cb = new QComboBox();
     connect(_resolution_cb, SIGNAL(activated(int)), this, SLOT(changeResolution()));
-    QLabel* resolution_lb = new QLabel(tr("Resolution"));
+    QLabel* resolution_lb = new QLabel(tr("Resolution:"));
     resolution_lb->setBuddy(_resolution_cb);
 
     updateAvailableCameras(true);
 
     QHBoxLayout* camera_lo = new QHBoxLayout();
+    camera_lo->addStretch();
     camera_lo->addWidget(camera_lb);
     camera_lo->addWidget(_camera_cb);
-    camera_lo->addStretch();
 
     QHBoxLayout* resolution_lo = new QHBoxLayout();
+    resolution_lo ->addStretch();
     resolution_lo ->addWidget(resolution_lb);
     resolution_lo ->addWidget(_resolution_cb);
-    resolution_lo ->addStretch();
 
     QVBoxLayout* main_lo = new QVBoxLayout();
     setLayout(main_lo);
     main_lo->addLayout(camera_lo);
     main_lo->addLayout(resolution_lo);
+}
+
+QSize CameraSettings::currentResolution() const
+{
+    return _camera_image_capture->encodingSettings().resolution();
 }
 
 void CameraSettings::updateAvailableCameras(bool try_set_camera)
@@ -135,12 +142,12 @@ void CameraSettings::changeResolution()
     QSize resolution = _resolution_cb->currentData().value<QSize>();
     if(resolution.isEmpty())
         return;
-    if(resolution == _camera_image_capture->encodingSettings().resolution())
+    if(resolution == currentResolution())
         // Skip a try to choose the same resolution.
         return
 
     // Resolution is really supported by camera
-    Q_ASSERT( qFind(_camera_image_capture->supportedResolutions(), resolution)
+    Q_ASSERT(qFind(_camera_image_capture->supportedResolutions(), resolution)
         != _camera_image_capture->supportedResolutions().end());
 
     QImageEncoderSettings image_settings;

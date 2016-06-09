@@ -97,7 +97,7 @@ void VideoFrameGrabber::installCamera(QCamera* camera)
 
 QImage VideoFrameGrabber::YUVQVideoFrame2QImage(const QVideoFrame& frame) const
 {
-    cv::ColorConversionCodes cv_color_conversion_code;
+    /*cv::ColorConversionCodes*/ int cv_color_conversion_code;
     switch(frame.pixelFormat()) {
     case QVideoFrame::Format_YUV444:
         cv_color_conversion_code = cv::COLOR_YCrCb2RGB;

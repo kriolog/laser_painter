@@ -144,7 +144,7 @@ void CameraSettings::changeResolution()
         return;
     if(resolution == currentResolution())
         // Skip a try to choose the same resolution.
-        return
+        return;
 
     // Resolution is really supported by camera
     Q_ASSERT(qFind(_camera_image_capture->supportedResolutions(), resolution)

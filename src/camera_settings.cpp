@@ -67,6 +67,8 @@ CameraSettings::CameraSettings(
 
 QSize CameraSettings::currentResolution() const
 {
+    if(!_camera_image_capture)
+        return QSize();
     return _camera_image_capture->encodingSettings().resolution();
 }
 

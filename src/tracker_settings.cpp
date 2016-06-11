@@ -3,8 +3,6 @@
 #include <QSettings>
 #include <QPushButton>
 #include <QSpinBox>
-#include <QPalette>
-#include <QColor>
 #include <QColorDialog>
 #include <QVBoxLayout>
 #include <QLabel>
@@ -46,14 +44,11 @@ TrackerSettings::TrackerSettings(TrackWidget* track_widget, QWidget* parent):
     _track_color_bn->setMaximumHeight(24);
     _track_color_bn->setMaximumWidth(32);
     _track_color_bn->setFocusPolicy(Qt::NoFocus);
-    {
-        QPalette palette;
-        palette.setColor(QPalette::Button, settings.value("TrackerSettings/track_color", QColor(Qt::magenta)).value<QColor>());
-        _track_color_bn->setPalette(palette);
-    }
+    _track_color = settings.value("TrackerSettings/track_color", QColor(Qt::magenta)).value<QColor>();
+    setColor(_track_color_bn, _track_color);
     connect(_track_color_bn, &QPushButton::clicked, this, &TrackerSettings::selectTrackColor);
     connect(this, &TrackerSettings::trackColorChanged, track_widget, &TrackWidget::setTrackColor);
-    emit trackColorChanged(_track_color_bn->palette().color(QPalette::Button));
+    emit trackColorChanged(_track_color);
     QLabel* track_color_lb = new QLabel(tr("Track color:"));
     track_color_lb->setBuddy(_track_color_bn);
 
@@ -69,14 +64,11 @@ TrackerSettings::TrackerSettings(TrackWidget* track_widget, QWidget* parent):
     _canvas_color_bn->setMaximumHeight(24);
     _canvas_color_bn->setMaximumWidth(32);
     _canvas_color_bn->setFocusPolicy(Qt::NoFocus);
-    {
-        QPalette palette;
-        palette.setColor(QPalette::Button, settings.value("TrackerSettings/canvas_color", QColor(Qt::black)).value<QColor>());
-        _canvas_color_bn->setPalette(palette);
-    }
+    _canvas_color = settings.value("TrackerSettings/canvas_color", QColor(Qt::black)).value<QColor>();
+    setColor(_canvas_color_bn, _canvas_color);
     connect(_canvas_color_bn, &QPushButton::clicked, this, &TrackerSettings::selectCanvasColor);
     connect(this, &TrackerSettings::canvasColorChanged, track_widget, &TrackWidget::setCanvasColor);
-    emit canvasColorChanged(_canvas_color_bn->palette().color(QPalette::Button));
+    emit canvasColorChanged(_canvas_color);
     QLabel* canvas_color_lb = new QLabel(tr("Canvas color:"));
     canvas_color_lb->setBuddy(_canvas_color_bn);
 
@@ -115,33 +107,39 @@ TrackerSettings::TrackerSettings(TrackWidget* track_widget, QWidget* parent):
     setLayout(main_lo);
 }
 
-void TrackerSettings::selectTrackColor() const
+void TrackerSettings::selectTrackColor()
 {
-    selectColor(_track_color_bn);
+    selectColor(_track_color_bn, _track_color);
 }
 
-void TrackerSettings::selectCanvasColor() const
+void TrackerSettings::selectCanvasColor()
 {
-    selectColor(_canvas_color_bn);
+    selectColor(_canvas_color_bn, _canvas_color);
 }
 
-void TrackerSettings::selectColor(QPushButton* color_bn) const
+void TrackerSettings::selectColor(QPushButton* color_bn, QColor& bn_color)
 {
-    QColor color = QColorDialog::getColor(color_bn->palette().color(QPalette::Button));
+    Q_ASSERT(color_bn);
+
+    QColor color = QColorDialog::getColor(color);
 
     if(!color.isValid())
         return;
 
-    QPalette palette;
-    palette.setColor(QPalette::Button, color);
-    color_bn->setPalette(palette);
+    bn_color = color;
+    setColor(color_bn, bn_color);
     color_bn->update();
     if(color_bn == _track_color_bn)
-        emit trackColorChanged(color);
+        emit trackColorChanged(bn_color);
     else if(color_bn == _canvas_color_bn)
-        emit canvasColorChanged(color);
+        emit canvasColorChanged(bn_color);
     else
         Q_ASSERT(false);
+}
+
+void TrackerSettings::setColor(QPushButton* color_bn, const QColor& color)
+{
+    color_bn->setStyleSheet(QString("background-color: %1; border-style: solid; border-width: 1px; border-radius: 2px; border-color: %2;").arg(color.name()).arg(color.darker().name()));
 }
 
 void TrackerSettings::writeSettings() const
@@ -150,9 +148,9 @@ void TrackerSettings::writeSettings() const
 
     settings.beginGroup("TrackerSettings");
 
-    settings.setValue("track_color", _track_color_bn->palette().color(QPalette::Button));
+    settings.setValue("track_color", _track_color);
     settings.setValue("track_width", _track_width_sb->value());
-    settings.setValue("canvas_color", _canvas_color_bn->palette().color(QPalette::Button));
+    settings.setValue("canvas_color", _canvas_color);
 
     settings.setValue("max_delay", _max_delay_sb->value());
     settings.setValue("max_track_size", _max_track_size_sb->value());

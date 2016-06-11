@@ -2,6 +2,7 @@
 #define TRACKER_SETTINGS
 
 #include <QGroupBox>
+#include <QColor>
 
 class QPushButton;
 class QSpinBox;
@@ -26,9 +27,11 @@ public:
     void writeSettings() const;
 
 public slots:
-    void selectColor(QPushButton* color_bn) const;
-    void selectTrackColor() const;
-    void selectCanvasColor() const;
+    void selectColor(QPushButton* color_bn, QColor& bn_color);
+    void setColor(QPushButton* color_bn, const QColor& color);
+
+    void selectTrackColor();
+    void selectCanvasColor();
 
 signals:
     void trackColorChanged(const QColor& color) const;
@@ -37,9 +40,13 @@ signals:
 private:
     QSpinBox* _max_track_size_sb;
     QDoubleSpinBox* _max_delay_sb;
-    QPushButton* _track_color_bn;
     QSpinBox* _track_width_sb;
+
+    QPushButton* _track_color_bn;
     QPushButton* _canvas_color_bn;
+    // TODO: No idea how to easily get a background color from a button style sheet.
+    QColor _track_color;
+    QColor _canvas_color;
 };
 
 } // namespace laser_painter

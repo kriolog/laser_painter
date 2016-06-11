@@ -16,7 +16,16 @@ set(${PROJECT_NAME}_SOURCES
 
 include_directories(${OpenCV_INCLUDE_DIRS})
 
-add_executable(${PROJECT_NAME} ${${PROJECT_NAME}_SOURCES} ${QRC_SOURCES})
+if(CMAKE_BUILD_TYPE MATCHES Release)
+    add_definitions(-DQT_NO_DEBUG_OUTPUT)
+    if(WIN32)
+        set(GUI_TYPE WIN32)
+    elseif(APPLE)
+        set(GUI_TYPE MACOSX_BUNDLE)
+    endif()
+endif()
+
+add_executable(${PROJECT_NAME} ${GUI_TYPE} ${${PROJECT_NAME}_SOURCES} ${QRC_SOURCES})
 
 qt5_use_modules(${PROJECT_NAME} LINK_PUBLIC Widgets Multimedia)
 target_link_libraries(${PROJECT_NAME} LINK_PUBLIC ${OpenCV_LIBRARIES})

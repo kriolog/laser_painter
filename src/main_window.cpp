@@ -9,6 +9,7 @@
 #include <QKeySequence>
 #include <QDockWidget>
 #include <QVBoxLayout>
+#include <QStatusBar>
 
 #include "video_frame_grabber.h"
 #include "camera_settings.h"
@@ -71,7 +72,6 @@ void MainWindow::createActions()
         new QShortcut(QKeySequence(tr("Escape", "ExitFullScreen")), this), SIGNAL(activated()),
         this, SLOT(toggleFullScreen())
     );
-
 }
 
 void MainWindow::createMenus()
@@ -149,6 +149,10 @@ void MainWindow::createWidgets()
     _settings_dk->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
     _settings_dk->setWidget(settings_wgt);
     addDockWidget(Qt::LeftDockWidgetArea, _settings_dk);
+
+    setStatusBar(new QStatusBar());
+    connect(video_frame_grabber, &VideoFrameGrabber::warning, this, &MainWindow::showWarning);
+    connect(laser_detector, &LaserDetector::warning, this, &MainWindow::showWarning);
 }
 
 void MainWindow::updateStreamsVisibility(QAction* stream_act)
@@ -182,6 +186,13 @@ void MainWindow::toggleFullScreen(bool enable)
         if(_full_screen_act->isChecked())
             _full_screen_act->setChecked(false);
     }
+}
+
+void MainWindow::showWarning(const QString& text)
+{
+    Q_ASSERT(statusBar());
+    statusBar()->setStyleSheet("QStatusBar{padding-left:8px;;color:red;}");
+    statusBar()->showMessage(text, 5000);
 }
 
 void MainWindow::writeSettings()

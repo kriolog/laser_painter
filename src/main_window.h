@@ -38,6 +38,7 @@ private:
 private slots:
     void updateStreamsVisibility(QAction* stream_act);
     void toggleFullScreen(bool enable = false);
+    void showWarning(const QString& text);
 
 private:
     QAction* _exit_act;

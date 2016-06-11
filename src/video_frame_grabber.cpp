@@ -1,7 +1,6 @@
 #include "video_frame_grabber.h"
 
 #include <QCamera>
-#include <QDebug>
 
 #include "opencv2/core/core.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
@@ -115,7 +114,7 @@ QImage VideoFrameGrabber::YUVQVideoFrame2QImage(const QVideoFrame& frame) const
         cv_color_conversion_code = cv::COLOR_YUV2RGB_YUYV;
         break;
     default:
-        qWarning() << "Camera color space format is not supported";
+        emit warning("Camera color space format is not supported");
         return QImage();
     }
 

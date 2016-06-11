@@ -32,6 +32,8 @@ signals:
     /// Emit a new available frame image @param frame.
     void frameAvailable(const QImage& frame);
 
+    void warning(const QString& text) const;
+
 private:
     // Convert frames with YUV color schemes with opencv
     // Supported formats:

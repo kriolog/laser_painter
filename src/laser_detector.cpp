@@ -5,7 +5,6 @@
 #include <QImage>
 #include <QPointF>
 #include <QSize>
-#include <QDebug>
 
 #include "opencv2/core/core.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
@@ -259,7 +258,7 @@ QPointF LaserDetector::center(const cv::Moments& moments) const
 cv::Mat LaserDetector::QImage2cvMat(const QImage& image) const
 {
     if(image.format() == QImage::Format_Invalid) {
-        qWarning() << "Laser detector: the input image format is not supported";
+        emit warning("Laser detector: the input image format is not supported");
         return cv::Mat();
     }
 

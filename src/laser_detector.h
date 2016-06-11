@@ -99,6 +99,8 @@ signals:
     void valueFilteredAvailable(const QImage& value) const;
     void blobsFilteredAvailable(const QImage& blobs) const;
 
+    void warning(const QString& text) const;
+
 private:
     // Compute center by moments. Area (m00) should be positive.
     inline QPointF center(const cv::Moments& moments) const;

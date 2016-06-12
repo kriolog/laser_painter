@@ -9,6 +9,7 @@ namespace laser_painter {
 }
 
 class QComboBox;
+class QCheckBox;
 class QCamera;
 class QCameraImageCapture;
 
@@ -24,8 +25,7 @@ public:
         QWidget* parent = 0
     );
 
-    // TODO: last camera and its resolution.
-    // void writeSettings() const;
+    void writeSettings() const;
 
 signals:
     void cameraChanged(QCamera* camera);
@@ -49,6 +49,11 @@ private:
     QCamera* _camera;
     QCameraImageCapture* _camera_image_capture;
     QCameraInfo _camera_info;
+
+    QCheckBox* _flip_x_cb;
+    QCheckBox* _flip_y_cb;
+
+    static const QList<QSize> _camera_common_resolutions;
 };
 
 } // namespace laser_painter

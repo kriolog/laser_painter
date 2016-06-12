@@ -8,7 +8,10 @@
 namespace laser_painter {
 
 VideoFrameGrabber::VideoFrameGrabber(QObject *parent) :
-    QAbstractVideoSurface(parent) {}
+    QAbstractVideoSurface(parent),
+    _flip_x(false),
+    _flip_y(false)
+{}
 
 QList<QVideoFrame::PixelFormat> VideoFrameGrabber::supportedPixelFormats(QAbstractVideoBuffer::HandleType handleType) const
 {
@@ -78,7 +81,7 @@ bool VideoFrameGrabber::present(const QVideoFrame& frame)
             // Warning: QImage::Format_Invalid will be returned for unsupported.
             QVideoFrame::imageFormatFromPixelFormat(frame_shallow_copy.pixelFormat())
         );
-    emit frameAvailable(frame_image);
+    emit frameAvailable(_flip_x || _flip_y ? frame_image.mirrored(_flip_x, _flip_y) : frame_image);
 
     // Unmap from CPU
     frame_shallow_copy.unmap();
@@ -92,6 +95,16 @@ void VideoFrameGrabber::installCamera(QCamera* camera)
         camera->stop();
     camera->setViewfinder(this);
     camera->start();
+}
+
+void VideoFrameGrabber::setFlipX(bool enabled)
+{
+    _flip_x = enabled;
+}
+
+void VideoFrameGrabber::setFlipY(bool enabled)
+{
+    _flip_y = enabled;
 }
 
 QImage VideoFrameGrabber::YUVQVideoFrame2QImage(const QVideoFrame& frame) const
@@ -121,7 +134,7 @@ QImage VideoFrameGrabber::YUVQVideoFrame2QImage(const QVideoFrame& frame) const
     cv::Mat yuv_mat(frame.height(), frame.width(), CV_8UC3, (void*) frame.bits(), frame.bytesPerLine());
     cv::Mat rgb_mat;
     cv::cvtColor(yuv_mat, rgb_mat, cv_color_conversion_code);
-    return QImage((uchar*) rgb_mat.data, rgb_mat.cols, rgb_mat.rows, rgb_mat.step, QImage::Format_RGB888).copy();
+    return QImage((uchar*) rgb_mat.data, rgb_mat.cols, rgb_mat.rows, rgb_mat.step, QImage::Format_RGB888);
 }
 
 } // namespace laser_painter

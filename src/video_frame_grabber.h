@@ -27,6 +27,8 @@ public:
 
 public slots:
     void installCamera(QCamera* camera);
+    void setFlipX(bool enabled);
+    void setFlipY(bool enabled);
 
 signals:
     /// Emit a new available frame image @param frame.
@@ -43,6 +45,10 @@ private:
     // Format_UYVY
     // Format_YUYV
     QImage YUVQVideoFrame2QImage(const QVideoFrame& frame) const;
+
+private:
+    bool _flip_x;
+    bool _flip_y;
 };
 
 } // namespace laser_painter

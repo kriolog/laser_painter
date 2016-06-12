@@ -199,6 +199,7 @@ void MainWindow::writeSettings()
 {
     QSettings settings;
 
+    _camera_settings->writeSettings();
     _laser_detector_settings->writeSettings();
     _laser_detector_calibration_dialog->writeSettings();
     _tracker_settings->writeSettings();

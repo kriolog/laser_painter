@@ -263,7 +263,7 @@ cv::Mat LaserDetector::QImage2cvMat(const QImage& image) const
     }
 
     // Straightforward conversion for RGB888 images
-    if(image.format() != QImage::Format_RGB888)
+    if(image.format() == QImage::Format_RGB888)
         return cv::Mat(image.height(), image.width(), CV_8UC3, (void*) image.scanLine(0), image.bytesPerLine()).clone();
 
     // image Should be preconverted in a RGB888 image

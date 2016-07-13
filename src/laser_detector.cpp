@@ -5,12 +5,14 @@
 #include <QImage>
 #include <QPointF>
 #include <QSize>
+#include <QDebug>
 
 #include "opencv2/core/core.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 
 namespace laser_painter {
 
+/// based on "LASER SPOT DETECTION" of Matej MESKO and Stefan TOTH, 2013
 LaserDetector::LaserDetector
 (
     QObject* parent,
@@ -56,139 +58,87 @@ void LaserDetector::run(const QImage& image) const
     // Split into channels
     cv::Mat hsv[3];
     cv::split(hsv_mat, hsv);
-    cv::Mat* h = hsv;
-    cv::Mat* s = hsv + 1;
+//     cv::Mat* h = hsv;
+//     cv::Mat* s = hsv + 1;
     cv::Mat* v = hsv + 2;
 
-    // Hue
-    if(_hue_min <= _hue_max)
-        *h = *h >= _hue_min & *h <= _hue_max;
-    else
-        *h = *h <= _hue_max | *h >= _hue_min;
-
-    // Saturation
-    if(_with_saturation)
-        *s = *s >= _saturation_min & *s <= _saturation_max;
-    else
-        s->setTo(0);
-
-    // Value
-    *v = *v >= _value_min & *v <= _value_max;
-
-    // Emit fitered HSV:
-    if(_emit_filtered_images) {
-        emit hueFilteredAvailable(cvMat2QImageBin(*h));
-        emit saturationFilteredAvailable(cvMat2QImageBin(*s));
-        emit valueFilteredAvailable(cvMat2QImageBin(*v));
-    }
-
-    // Detected blob(s)
-    cv::Mat blob;
-    cv::bitwise_and(*h, *v, blob);
-    if(_with_saturation)
-        cv::bitwise_and(blob, *s, blob);
-
-    // Close detected blobs
-    if(_blob_closing_size > 0)
-        cv::morphologyEx(
-            blob,
-            blob,
-            cv::MORPH_CLOSE,
-            cv::getStructuringElement(cv::MORPH_ELLIPSE,
-                cv::Size(_blob_closing_size, _blob_closing_size))
-        );
-
-    // Detect blob contours
-    std::vector<std::vector<cv::Point> > contours;
-    cv::findContours(blob, contours, CV_RETR_LIST, CV_CHAIN_APPROX_NONE);
-
-    bool with_filters = _with_area_filter || _with_circularity_filter;
-
-    if(contours.size() == 0 || (contours.size() != 1 && !with_filters)) {
-        // No contours detected OR
-        // more than one contour detected and no postprocessing filtering.
-        // Detection failed.
+    // Average input value threshold
+    static const uchar aiv_thresh = 77;
+    uchar aiv = std::round(cv::mean(*v).val[0]);
+    if(aiv > aiv_thresh) {
+        emit warning(QString(tr("Laser detector: Average input value %1 is more than the threshold value %2. Decrease the camera exposure.")).arg(aiv).arg(aiv_thresh));
         emit laserPosition(QPointF(), false);
-        // Emit fitered blob(s):
-        if(_emit_filtered_images)
-            emit blobsFilteredAvailable(cvMat2QImageBin(blob));
-        return;
-    } else if(contours.size() == 1 && !with_filters) {
-        // exactly one contour detected and no postprocessing filtering
-        // Laser blob detected
-        cv::Moments moments = cv::moments(contours[0]);
-        if(moments.m00 == 0)
-            emit laserPosition(QPointF(), false);
-        else
-            emit laserPosition(center(moments));
         return;
     }
-    Q_ASSERT(with_filters);
 
-    // Index of the laser blob contour after filtering or -1 if no contours
-    // passed filtering or -2 if more than one contour passed filtering.
-    int laser_blob_contour_id = -1;
-    if(_emit_filtered_images)
-        // Clear before drawing contours
-        blob.setTo(0);
+    // Dynamic value threshold
+    uchar DV_thresh;
+    double min_value, max_value;
+    cv::minMaxLoc(*v, &min_value, &max_value);
+    DV_thresh = std::round(0.95 * max_value);
+
+    // Filter by the dynamic value threshold
+    cv::Mat v_bin = *v >= DV_thresh;
+    emit blobsFilteredAvailable(cvMat2QImageBin(v_bin));
+
+    // Break if there's too much bright pixels.
+    static const int max_bright_pixels_nb = 100;
+    if(cv::countNonZero(v_bin) > max_bright_pixels_nb) {
+        emit warning(QString(tr("Too much (%1) bright pixels. Try downscaling the camera image or decreasing the camera exposure.")).arg(cv::countNonZero(v_bin)));
+        emit laserPosition(QPointF(), false);
+        return;
+    }
+
+     // Detect spots and find the laser spot, if any
+    std::vector<std::vector<cv::Point> > contours;
+    cv::findContours(v_bin, contours, CV_RETR_LIST, CV_CHAIN_APPROX_NONE);
+    static const int max_bright_pixels_in_laser_spot_nb = 36;
+    bool laser_spot_found = false;
+    // Resulting laser position
+    QPointF laser_pos;
+    int w = v->cols;
+    int h = v->rows;
+    static const uchar laser_DV_thresh = std::round(0.9 * max_value);
+    static const uchar bright_pixels_ratio_thresh = 0.3;
+    qDebug() << "contours size: " << contours.size();
     for(size_t i = 0, size = contours.size(); i < size; ++i) {
         cv::Moments moments = cv::moments(contours[i]);
-        // Filter by area
-        if(_with_area_filter) {
-            double area = moments.m00;
-            if(area < _blob_area_min || area > _blob_area_max)
-                continue;
+        double area = moments.m00;
+        qDebug() << "contour " << i << ": area :" << area;
+        if(area < max_bright_pixels_in_laser_spot_nb)
+            continue;
+        else if(laser_spot_found) {
+            emit warning(QString(tr("Two or more laser spots were found.")));
+            emit laserPosition(QPointF(), false);
+            return;
         }
-        // Filter by blob_circularity
-        if(_with_circularity_filter) {
-            double area = moments.m00;
-            double perimeter = cv::arcLength(cv::Mat(contours[i]), true);
-            if(perimeter == 0.)
-                continue;
-            double circularity = 4 * CV_PI * area / (perimeter * perimeter);
-            if(circularity < _blob_circularity_min || circularity  > _blob_circularity_max)
-                continue;
-        }
-
-        // Contour passed filters
-        Q_ASSERT(
-            laser_blob_contour_id == -1 ||
-            laser_blob_contour_id == -2 ||
-            laser_blob_contour_id >= 0
-        );
-        if(laser_blob_contour_id == -1) {
-            // First contour, save its id
-            laser_blob_contour_id = i;
-        } else /*if(laser_blob_contour_id >= 0 || laser_blob_contour_id == -2)*/ {
-            // Second contour, filtering failed: set id to -2 and break (if
-            // shouldn't emit filtered images).
-            laser_blob_contour_id = -2;
-            if(!_emit_filtered_images)
-                break;
-        }
-
-        if(_emit_filtered_images)
-            cv::drawContours(blob, contours, i, 255, CV_FILLED);
+        int diameter = std::ceil(std::sqrt(area));
+        qDebug() << "contour " << i << ": diameter :" << diameter;
+        QPointF blob_center_pos = center(moments);
+        qDebug() << "contour " << i << ": center :" << blob_center_pos;
+        int ci = std::round(blob_center_pos.x());
+        int cj = std::round(blob_center_pos.y());
+        if(ci - diameter < 0 || cj - diameter < 0 || ci + diameter >= w || cj + diameter >= h)
+            // Blob is on the image border, can't compute the
+            continue;
+        int bright_pixels_nb = 0;
+        for(int i = ci - diameter; i <= ci + diameter; ++i)
+            for(int j = cj - diameter; j <= cj + diameter; ++j)
+                if(v->at<uchar>(i, j) >= laser_DV_thresh)
+                    ++bright_pixels_nb;
+        if(bright_pixels_nb == 0)
+            continue;
+        int cropped_area = 2 * diameter + 1;
+        cropped_area *= cropped_area;
+        Q_ASSERT(cropped_area > 0);
+        qDebug() << "contour " << i << ": bright_pixels_ratio: " << bright_pixels_nb << cropped_area << static_cast<double>(bright_pixels_nb) / cropped_area;
+        if((static_cast<double>(bright_pixels_nb) / cropped_area) > bright_pixels_ratio_thresh)
+            continue;
+        laser_spot_found = true;
+        laser_pos = blob_center_pos;
     }
 
-    // Emit fitered blob(s):
-    if(_emit_filtered_images)
-        emit blobsFilteredAvailable(cvMat2QImageBin(blob));
-
-    // No pertinent contours detected
-    if(laser_blob_contour_id < 0) {
-        emit laserPosition(QPointF(), false);
-        return;
-    }
-
-    // Detect laser blob center
-    cv::Moments moments = cv::moments(contours[laser_blob_contour_id]);
-    if(moments.m00 == 0) {
-        emit laserPosition(QPointF(), false);
-        return;
-    }
-
-    emit laserPosition(center(moments));
+    emit laserPosition(laser_pos);
 }
 
 void LaserDetector::setHueRange(uchar min, uchar max)

@@ -230,7 +230,11 @@ void CameraSettings::changeResolution()
 
     QImageEncoderSettings image_settings;
     image_settings.setResolution(resolution);
+    _camera->stop();
+    _camera->unload();
     _camera_image_capture->setEncodingSettings(image_settings);
+    _camera->load();
+    _camera->start();
 
     emit resolutionChanged(resolution);
 }

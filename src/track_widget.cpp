@@ -72,7 +72,9 @@ void TrackWidget::addTip(const QPointF& pos)
 {
     _track.append(pos);
     if(_track.size() > _max_track_size)
-        _track.remove(0, _track.size() - _max_track_size);
+        // Remove 5% of track
+        _track.remove(0, _track.size() - _max_track_size
+            + static_cast<size_t>(0.05 * _max_track_size));
     repaint();
 }
 

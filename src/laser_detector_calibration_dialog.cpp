@@ -30,11 +30,7 @@ LaserDetectorCalibrationDialog::LaserDetectorCalibrationDialog(
 
     // Connections of settings with the laser detector
     connect(this, &LaserDetectorCalibrationDialog::hueRangeChanged, laser_detector, &LaserDetector::setHueRange);
-    connect(this, &LaserDetectorCalibrationDialog::saturationRangeChanged, laser_detector, &LaserDetector::setSaturationRange);
-    connect(this, &LaserDetectorCalibrationDialog::valueRangeChanged, laser_detector, &LaserDetector::setValueRange);
     connect(this, &LaserDetectorCalibrationDialog::blobClosingSizeChanged, laser_detector, &LaserDetector::setBlobClosingSize);
-    connect(this, &LaserDetectorCalibrationDialog::blobAreaParamsChanged, laser_detector, &LaserDetector::setBlobAreaParams);
-    connect(this, &LaserDetectorCalibrationDialog::blobCircularityParamsChanged, laser_detector, &LaserDetector::setBlobCircularityParams);
     // Laser detector emits binary images for settings calibration when the widget is visible.
     connect(this, &LaserDetectorCalibrationDialog::visible, laser_detector, &LaserDetector::setEmitFilteredImages);
 
@@ -68,7 +64,6 @@ LaserDetectorCalibrationDialog::LaserDetectorCalibrationDialog(
     _hue_span_sb->setValue(settings.value("LaserDetectorCalibrationDialog/hue_span", 42).toInt());
 
     ImageWidget* hue_img_wgt = new ImageWidget();
-    connect(laser_detector, &LaserDetector::hueFilteredAvailable, hue_img_wgt, &ImageWidget::setImage);
 
     QHBoxLayout* hue_mean_lo = new QHBoxLayout();
     hue_mean_lo->addWidget(hue_mean_lb);
@@ -115,7 +110,7 @@ LaserDetectorCalibrationDialog::LaserDetectorCalibrationDialog(
     _saturation_span_sb->setValue(settings.value("LaserDetectorCalibrationDialog/saturation_span", 42).toInt());
 
     ImageWidget* saturation_img_wgt = new ImageWidget();
-    connect(laser_detector, &LaserDetector::saturationFilteredAvailable, saturation_img_wgt, &ImageWidget::setImage);
+    connect(laser_detector, &LaserDetector::blobsAvailable, saturation_img_wgt, &ImageWidget::setImage);
 
     QHBoxLayout* saturation_mean_lo = new QHBoxLayout();
     saturation_mean_lo->addWidget(saturation_mean_lb);
@@ -133,7 +128,7 @@ LaserDetectorCalibrationDialog::LaserDetectorCalibrationDialog(
     saturation_lo->addWidget(saturation_img_wgt);
     _saturation_gb = new QGroupBox(tr("Saturation"));
     _saturation_gb->setCheckable(true);
-    connect(_saturation_gb, &QGroupBox::toggled, laser_detector, &LaserDetector::setWithSaturation);
+//     connect(_saturation_gb, &QGroupBox::toggled, laser_detector, &LaserDetector::setWithSaturation);
     _saturation_gb->setChecked(settings.value("LaserDetectorCalibrationDialog/with_saturation", true).toBool());
     _saturation_gb->setLayout(saturation_lo);
 
@@ -165,7 +160,6 @@ LaserDetectorCalibrationDialog::LaserDetectorCalibrationDialog(
     _value_span_sb->setValue(settings.value("LaserDetectorCalibrationDialog/value_span", 42).toInt());
 
     ImageWidget* value_img_wgt = new ImageWidget();
-    connect(laser_detector, &LaserDetector::valueFilteredAvailable, value_img_wgt, &ImageWidget::setImage);
 
     QHBoxLayout* value_mean_lo = new QHBoxLayout();
     value_mean_lo->addWidget(value_mean_lb);
@@ -265,7 +259,7 @@ LaserDetectorCalibrationDialog::LaserDetectorCalibrationDialog(
     blob_circularity_lo->addStretch();
 
     ImageWidget* blobs_img_wgt = new ImageWidget();
-    connect(laser_detector, &LaserDetector::blobsFilteredAvailable, blobs_img_wgt, &ImageWidget::setImage);
+    connect(laser_detector, &LaserDetector::laserBlobAvailable, blobs_img_wgt, &ImageWidget::setImage);
 
     QVBoxLayout* blob_filters_lo = new QVBoxLayout();
     blob_filters_lo->addLayout(blob_closing_area_lo);

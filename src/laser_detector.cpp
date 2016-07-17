@@ -32,7 +32,7 @@ LaserDetector::LaserDetector
 ) :
     QObject(parent)
 {
-    setHighestBrightness(highest_brightness_min);
+    setHighestBrightnessMin(highest_brightness_min);
     setRelativeBrightnessMin(relative_brightness_min);
     setBlobClosingSize(blob_closing_size);
     setNbBlobsMax(nb_blobs_max);
@@ -191,9 +191,11 @@ void LaserDetector::run(const QImage& image) const
     emit laserPosition(QPointF(), false);
 }
 
-void LaserDetector::setHighestBrightness(uchar max)
+void LaserDetector::setHighestBrightnessMin(int min)
 {
-    _highest_brightness_min = max;
+    Q_ASSERT(min >= 0 && min <= 255);
+
+    _highest_brightness_min = min;
 }
 
 void LaserDetector::setRelativeBrightnessMin(double min)
@@ -208,7 +210,7 @@ void LaserDetector::setBlobClosingSize(uint size)
     _blob_closing_size = size;
 }
 
-void LaserDetector::setNbBlobsMax(double max)
+void LaserDetector::setNbBlobsMax(int max)
 {
     Q_ASSERT(max > 0);
 

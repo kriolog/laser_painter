@@ -4,7 +4,7 @@
 #include <QDialog>
 
 class QSpinBox;
-class QGroupBox;
+class QDoubleSpinBox;
 class QLabel;
 
 namespace laser_painter {
@@ -27,11 +27,9 @@ public:
 
 signals:
     void hueRangeChanged(uchar min, uchar max) const;
-    void saturationRangeChanged(uchar min, uchar max) const;
-    void valueRangeChanged(uchar min, uchar max) const;
     void blobClosingSizeChanged(uint min) const;
-    void blobAreaParamsChanged(bool enable, uint min, uint max) const;
-    void blobCircularityParamsChanged(bool enable, double min, double max) const;
+    void blobPerimeterRangeChanged(uint min, uint max) const;
+    void blobCrownMarginsChanged(uint min, uint max) const;
     void visible(bool visible) const;
 
 public slots:
@@ -39,39 +37,25 @@ public slots:
 
 private slots:
     void computeHueRange() const;
-    void computeSaturationRange() const;
-    void computeValueRange() const;
     void emitBlobClosingSizeChanged() const;
-    void emitBlobAreaParamsChanged() const;
-    void emitBlobCircularityParamsChanged() const;
+    void emitBlobPerimeterRangeChanged() const;
+    void emitBlobCrownMarginsChanged() const;
 
 private:
     inline void computeRange(int mean, int span, int& min, int& max) const;
 
 private:
+    QSpinBox* _highest_brightness_min_sb;
+    QDoubleSpinBox* _relative_brightness_min_sb;
+    QSpinBox* _blob_closing_size_sb;
+    QSpinBox* _nb_blobs_max_sb;
+    QSpinBox* _blob_perimeter_min_sb;
+    QSpinBox* _blob_perimeter_max_sb;
+    QSpinBox* _blob_crown_margin_inf_sb;
+    QSpinBox* _blob_crown_margin_sup_sb;
     QSpinBox* _hue_mean_sb;
     QSpinBox* _hue_span_sb;
-    QGroupBox* _saturation_gb;
-    QSpinBox* _saturation_mean_sb;
-    QSpinBox* _saturation_span_sb;
-    QSpinBox* _value_mean_sb;
-    QSpinBox* _value_span_sb;
-    QSpinBox* _blob_closing_size_sb;
-    QSpinBox* _blob_area_min_sb;
-    QSpinBox* _blob_area_max_sb;
-    QSpinBox* _blob_circularity_min_sb;
-    QSpinBox* _blob_circularity_max_sb;
-
-    // TODO: use lambdas instead
-    QLabel* _blob_area_lb;
-    QLabel* _blob_circularity_lb;
-    QLabel* _blob_closing_lb;
-
-private slots:
-    // TODO: use lambdas instead
-    void blobClosingSetEnabled(int enabled);
-    void blobAreaLbSetEnabled(int enabled);
-    void blobCircularitySetEnabled(int enabled);
+    QDoubleSpinBox* _blob_crown_valid_pixels_part_min_sb;
 };
 
 } // namespace laser_painter

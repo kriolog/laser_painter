@@ -36,17 +36,17 @@ public:
     (
         QObject* parent = 0,
 
-        uchar highest_brightness_min = 200,
+        uchar highest_brightness_min = 150,
         double relative_brightness_min = 0.9,
         uint _blob_closing_size = 0,
-        uint nb_blobs_max = 16,
+        uint nb_blobs_max = 8,
         uint blob_perimeter_min = 1,
         uint blob_perimeter_max = 512,
-        int blob_crown_margin_inf = 1,
-        int blob_crown_margin_sup = 3,
+        int blob_crown_margin_inf = 0,
+        int blob_crown_margin_sup = 1,
         uchar hue_min = 0,
         uchar hue_max = 179,
-        double blob_crown_valid_pixels_part_min = 0.5,
+        double blob_crown_valid_pixels_part_min = 0.66,
 
         bool emit_filtered_images = false
     );
@@ -56,10 +56,10 @@ public slots:
     /// @retval laserPosition signal
     void run(const QImage& image) const;
 
-    void setHighestBrightness(uchar max);
+    void setHighestBrightnessMin(int min);
     void setRelativeBrightnessMin(double min);
     void setBlobClosingSize(uint size);
-    void setNbBlobsMax(double max);
+    void setNbBlobsMax(int max);
     void setBlobCrownMargins(int inf, int sup);
     void setBlobPerimeterRange(uint min, uint max);
     void setHueRange(uchar min, uchar max);

@@ -209,7 +209,6 @@ LaserDetectorCalibrationDialog::LaserDetectorCalibrationDialog(
     connect(laser_detector, &LaserDetector::blobsAvailable, detected_blobs_img_wgt, &ImageWidget::setImage);
     QGroupBox* detected_blobs_gb = new QGroupBox(tr("Detected blob candidates"));
     detected_blobs_gb->setAlignment (Qt::AlignHCenter);
-    detected_blobs_gb->setFlat(true);
     QVBoxLayout* detected_blobs_lo = new QVBoxLayout();
     detected_blobs_lo->addWidget(detected_blobs_img_wgt);
     detected_blobs_gb->setLayout(detected_blobs_lo);

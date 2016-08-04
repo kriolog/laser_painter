@@ -47,6 +47,7 @@ LaserDetectorCalibrationDialog::LaserDetectorCalibrationDialog(
     connect(_highest_brightness_min_sb, SIGNAL(valueChanged(int)), laser_detector, SLOT(setHighestBrightnessMin(int)));
     _highest_brightness_min_sb->setValue(settings.value("LaserDetectorCalibrationDialog/highest_brightness_min", 200).toInt());
     QHBoxLayout* highest_brightness_min_lo = new QHBoxLayout();
+    highest_brightness_min_lo->addStretch();
     highest_brightness_min_lo->addWidget(highest_brightness_min_lb);
     highest_brightness_min_lo->addWidget(_highest_brightness_min_sb);
 
@@ -61,6 +62,7 @@ LaserDetectorCalibrationDialog::LaserDetectorCalibrationDialog(
     connect(_relative_brightness_min_sb, SIGNAL(valueChanged(double)), laser_detector, SLOT(setRelativeBrightnessMin(double)));
     _relative_brightness_min_sb->setValue(settings.value("LaserDetectorCalibrationDialog/relative_brightness_min", 0.9).toDouble());
     QHBoxLayout* relative_brightness_min_lo = new QHBoxLayout();
+    relative_brightness_min_lo->addStretch();
     relative_brightness_min_lo->addWidget(relative_brightness_min_lb);
     relative_brightness_min_lo->addWidget(_relative_brightness_min_sb);
 
@@ -73,6 +75,7 @@ LaserDetectorCalibrationDialog::LaserDetectorCalibrationDialog(
     connect(_blob_closing_size_sb, SIGNAL(valueChanged(int)), this, SLOT(emitBlobClosingSizeChanged()));
     _blob_closing_size_sb->setValue(settings.value("LaserDetectorCalibrationDialog/blob_closing_size", 2).toInt());
     QHBoxLayout* blob_closing_size_lo = new QHBoxLayout();
+    blob_closing_size_lo->addStretch();
     blob_closing_size_lo->addWidget(blob_closing_size_lb);
     blob_closing_size_lo->addWidget(_blob_closing_size_sb);
 
@@ -85,6 +88,7 @@ LaserDetectorCalibrationDialog::LaserDetectorCalibrationDialog(
     connect(_nb_blobs_max_sb, SIGNAL(valueChanged(int)), laser_detector, SLOT(setNbBlobsMax(int)));
     _nb_blobs_max_sb->setValue(settings.value("LaserDetectorCalibrationDialog/nb_blobs_max", 99).toInt());
     QHBoxLayout* nb_blobs_max_lo = new QHBoxLayout();
+    nb_blobs_max_lo->addStretch();
     nb_blobs_max_lo->addWidget(nb_blobs_max_lb);
     nb_blobs_max_lo->addWidget(_nb_blobs_max_sb);
 
@@ -97,22 +101,27 @@ LaserDetectorCalibrationDialog::LaserDetectorCalibrationDialog(
     QLabel* blob_perimeter_min_lb = new QLabel(tr("Min:"));
     blob_perimeter_min_lb->setToolTip(tr("Minimum perimeter of valid blobs."));
     blob_perimeter_min_lb->setBuddy(_blob_perimeter_min_sb);
-    _blob_perimeter_min_sb->setValue(settings.value("LaserDetectorCalibrationDialog/blob_perimeter_min", 1).toInt());
     // Max
     _blob_perimeter_max_sb= new QSpinBox();
     _blob_perimeter_max_sb->setRange(2, 99999);
     QLabel* blob_perimeter_max_lb = new QLabel(tr("Max:"));
     blob_perimeter_max_lb->setToolTip(tr("Maximum perimeter of valid blobs."));
     blob_perimeter_max_lb->setBuddy(_blob_perimeter_max_sb);
-    _blob_perimeter_max_sb->setValue(settings.value("LaserDetectorCalibrationDialog/blob_perimeter_max", 999).toInt());
     // Connections
     connect(_blob_perimeter_min_sb, SIGNAL(valueChanged(int)), this, SLOT(emitBlobPerimeterRangeChanged()));
     connect(_blob_perimeter_max_sb, SIGNAL(valueChanged(int)), this, SLOT(emitBlobPerimeterRangeChanged()));
+    _blob_perimeter_min_sb->setValue(settings.value("LaserDetectorCalibrationDialog/blob_perimeter_min", 1).toInt());
+    _blob_perimeter_max_sb->setValue(settings.value("LaserDetectorCalibrationDialog/blob_perimeter_max", 999).toInt());
     // Layout
     QVBoxLayout* blob_perimeter_lo = new QVBoxLayout();
+    QHBoxLayout* blob_perimeter_header_lo = new QHBoxLayout();
     QHBoxLayout* blob_perimeter_handlers_lo = new QHBoxLayout();
-    blob_perimeter_lo->addWidget(blob_perimeter_lb);
+    blob_perimeter_lo->addLayout(blob_perimeter_header_lo);
     blob_perimeter_lo->addLayout(blob_perimeter_handlers_lo);
+    blob_perimeter_header_lo->addStretch();
+    blob_perimeter_header_lo->addWidget(blob_perimeter_lb);
+    blob_perimeter_header_lo->addStretch();
+    blob_perimeter_handlers_lo->addStretch();
     blob_perimeter_handlers_lo->addWidget(blob_perimeter_min_lb);
     blob_perimeter_handlers_lo->addWidget(_blob_perimeter_min_sb);
     blob_perimeter_handlers_lo->addWidget(blob_perimeter_max_lb);
@@ -127,22 +136,27 @@ LaserDetectorCalibrationDialog::LaserDetectorCalibrationDialog(
     QLabel* blob_crown_margin_inf_lb = new QLabel(tr("Inf:"));
     blob_crown_margin_inf_lb->setToolTip(tr("Distance from a blob to the inner boundary of the blob crown."));
     blob_crown_margin_inf_lb->setBuddy(_blob_crown_margin_inf_sb);
-    _blob_crown_margin_inf_sb->setValue(settings.value("LaserDetectorCalibrationDialog/blob_crown_margin_inf", 0).toInt());
     // Sup
     _blob_crown_margin_sup_sb = new QSpinBox();
     _blob_crown_margin_sup_sb->setRange(1, 99);
     QLabel* blob_crown_margin_sup_lb = new QLabel(tr("Sup:"));
     blob_crown_margin_sup_lb->setToolTip(tr("Distance from a blob to the outer boundary of the blob crown."));
     blob_crown_margin_sup_lb->setBuddy(_blob_crown_margin_sup_sb);
-    _blob_crown_margin_sup_sb->setValue(settings.value("LaserDetectorCalibrationDialog/blob_crown_margin_sup", 1).toInt());
     // Connections
     connect(_blob_crown_margin_inf_sb, SIGNAL(valueChanged(int)), this, SLOT(emitBlobCrownMarginsChanged()));
     connect(_blob_crown_margin_sup_sb, SIGNAL(valueChanged(int)), this, SLOT(emitBlobCrownMarginsChanged()));
+    _blob_crown_margin_inf_sb->setValue(settings.value("LaserDetectorCalibrationDialog/blob_crown_margin_inf", 0).toInt());
+    _blob_crown_margin_sup_sb->setValue(settings.value("LaserDetectorCalibrationDialog/blob_crown_margin_sup", 1).toInt());
     // Layout
     QVBoxLayout* blob_crown_margins_lo = new QVBoxLayout();
+    QHBoxLayout* blob_crown_margins_header_lo = new QHBoxLayout();
     QHBoxLayout* blob_crown_margins_handlers_lo = new QHBoxLayout();
-    blob_crown_margins_lo->addWidget(blob_crown_margins_lb);
+    blob_crown_margins_lo->addLayout(blob_crown_margins_header_lo);
     blob_crown_margins_lo->addLayout(blob_crown_margins_handlers_lo);
+    blob_crown_margins_header_lo->addStretch();
+    blob_crown_margins_header_lo->addWidget(blob_crown_margins_lb);
+    blob_crown_margins_header_lo->addStretch();
+    blob_crown_margins_handlers_lo->addStretch();
     blob_crown_margins_handlers_lo->addWidget(blob_crown_margin_inf_lb);
     blob_crown_margins_handlers_lo->addWidget(_blob_crown_margin_inf_sb);
     blob_crown_margins_handlers_lo->addWidget(blob_crown_margin_sup_lb);
@@ -178,11 +192,15 @@ LaserDetectorCalibrationDialog::LaserDetectorCalibrationDialog(
     _hue_span_sb->setValue(settings.value("LaserDetectorCalibrationDialog/hue_span", 42).toInt());
     // Layout
     QVBoxLayout* hue_lo = new QVBoxLayout();
+    QHBoxLayout* hue_header_lo = new QHBoxLayout();
     QHBoxLayout* hue_mean_lo = new QHBoxLayout();
     QHBoxLayout* hue_span_lo = new QHBoxLayout();
-    hue_lo->addWidget(hue_lb);
+    hue_lo->addLayout(hue_header_lo);
     hue_lo->addLayout(hue_mean_lo);
     hue_lo->addLayout(hue_span_lo);
+    hue_header_lo->addStretch();
+    hue_header_lo->addWidget(hue_lb);
+    hue_header_lo->addStretch();
     hue_mean_lo->addWidget(hue_mean_lb);
     hue_mean_lo->addWidget(hue_mean_sl);
     hue_mean_lo->addWidget(_hue_mean_sb);
@@ -201,6 +219,7 @@ LaserDetectorCalibrationDialog::LaserDetectorCalibrationDialog(
     connect(_blob_crown_valid_pixels_part_min_sb, SIGNAL(valueChanged(double)), laser_detector, SLOT(setBlobCrownValidPixelsPartMin(double)));
     _blob_crown_valid_pixels_part_min_sb->setValue(settings.value("LaserDetectorCalibrationDialog/blob_crown_valid_pixels_part_min", 0.66).toDouble());
     QHBoxLayout* blob_crown_valid_pixels_part_min_lo = new QHBoxLayout();
+    blob_crown_valid_pixels_part_min_lo->addStretch();
     blob_crown_valid_pixels_part_min_lo->addWidget(blob_crown_valid_pixels_part_min_lb);
     blob_crown_valid_pixels_part_min_lo->addWidget(_blob_crown_valid_pixels_part_min_sb);
 
@@ -220,10 +239,6 @@ LaserDetectorCalibrationDialog::LaserDetectorCalibrationDialog(
     QVBoxLayout* detected_blob_lo = new QVBoxLayout();
     detected_blob_lo->addWidget(detected_blob_img_wgt);
     detected_blob_gb->setLayout(detected_blob_lo);
-
-//     /// Advice
-//     QLabel* advice_lb = new QLabel(tr("TODO"));
-//     advice_lb->setWordWrap(true);
 
     // Main layout
     QVBoxLayout* settings_lo = new QVBoxLayout();

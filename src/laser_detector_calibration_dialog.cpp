@@ -41,9 +41,9 @@ LaserDetectorCalibrationDialog::LaserDetectorCalibrationDialog(
     //////// Highest brightness threshold ////////
     _highest_brightness_min_sb = new QSpinBox();
     _highest_brightness_min_sb->setRange(0, 255);
-    QLabel* highest_brightness_min_lb = new QLabel(tr("Minimum highest brightness:"));
+    QLabel* highest_brightness_min_lb = new QLabel(tr("Minimum highest brightness level:"));
     highest_brightness_min_lb->setBuddy(_highest_brightness_min_sb);
-    highest_brightness_min_lb->setToolTip(tr("When brightness of the brightest\npixel is less than this threshold the image\nwon't be processed."));
+    highest_brightness_min_lb->setToolTip(tr("When brightness of the brightest\npixel is less than this threshold the image\nwill not be processed."));
     connect(_highest_brightness_min_sb, SIGNAL(valueChanged(int)), laser_detector, SLOT(setHighestBrightnessMin(int)));
     _highest_brightness_min_sb->setValue(settings.value("LaserDetectorCalibrationDialog/highest_brightness_min", 200).toInt());
     QHBoxLayout* highest_brightness_min_lo = new QHBoxLayout();
@@ -56,7 +56,7 @@ LaserDetectorCalibrationDialog::LaserDetectorCalibrationDialog(
     _relative_brightness_min_sb->setRange(0.5, 1.0);
     _relative_brightness_min_sb->setDecimals(2);
     _relative_brightness_min_sb->setSingleStep(0.01);
-    QLabel* relative_brightness_min_lb = new QLabel(tr("Minimum relative brightness:"));
+    QLabel* relative_brightness_min_lb = new QLabel(tr("Minimum relative brightness level:"));
     relative_brightness_min_lb->setBuddy(_relative_brightness_min_sb);
     relative_brightness_min_lb->setToolTip(tr("Pixels with relative brightness >= this threshold\nwill be considered as blob pixels."));
     connect(_relative_brightness_min_sb, SIGNAL(valueChanged(double)), laser_detector, SLOT(setRelativeBrightnessMin(double)));
@@ -70,7 +70,7 @@ LaserDetectorCalibrationDialog::LaserDetectorCalibrationDialog(
     _blob_closing_size_sb = new QSpinBox();
     _blob_closing_size_sb->setRange(0, 9);
     QLabel* blob_closing_size_lb = new QLabel(tr("Fill holes with radius:"));
-    blob_closing_size_lb->setToolTip(tr("Fill small holes and non-convex parts\n of the detected blobs (morphological closing).\nValue is the maximum radius of holes\n(if zero, the filter won't be applied)."));
+    blob_closing_size_lb->setToolTip(tr("Fill small holes and non-convex parts\n of the detected blobs (morphological closing).\nValue is the maximum radius of holes\n(if zero, the filter will not be applied)."));
     blob_closing_size_lb->setBuddy(_blob_closing_size_sb);
     connect(_blob_closing_size_sb, SIGNAL(valueChanged(int)), this, SLOT(emitBlobClosingSizeChanged()));
     _blob_closing_size_sb->setValue(settings.value("LaserDetectorCalibrationDialog/blob_closing_size", 2).toInt());
@@ -83,7 +83,7 @@ LaserDetectorCalibrationDialog::LaserDetectorCalibrationDialog(
     _nb_blobs_max_sb = new QSpinBox();
     _nb_blobs_max_sb->setRange(1, 9999);
     QLabel* nb_blobs_max_lb = new QLabel(tr("Maximum number of blobs:"));
-    nb_blobs_max_lb->setToolTip(tr("When the number of blobs exceeds this threshold\nthe image won't be processed."));
+    nb_blobs_max_lb->setToolTip(tr("When the number of blobs exceeds this threshold\nthe image will not be processed."));
     nb_blobs_max_lb->setBuddy(_nb_blobs_max_sb);
     connect(_nb_blobs_max_sb, SIGNAL(valueChanged(int)), laser_detector, SLOT(setNbBlobsMax(int)));
     _nb_blobs_max_sb->setValue(settings.value("LaserDetectorCalibrationDialog/nb_blobs_max", 99).toInt());
@@ -129,7 +129,7 @@ LaserDetectorCalibrationDialog::LaserDetectorCalibrationDialog(
 
     //// Blob crown margins ////
     QLabel* blob_crown_margins_lb = new QLabel(tr("Blob crown margins"));
-    blob_perimeter_lb->setToolTip(tr("Distance from a blob to the inner and outer\nboundsries of the blob crown."));
+    blob_perimeter_lb->setToolTip(tr("Distance from a blob to the inner and outer\nboundaries of the blob crown."));
     // Inf
     _blob_crown_margin_inf_sb = new QSpinBox();
     _blob_crown_margin_inf_sb->setRange(0, 98);
@@ -174,7 +174,7 @@ LaserDetectorCalibrationDialog::LaserDetectorCalibrationDialog(
     connect(_hue_mean_sb, SIGNAL(valueChanged(int)), hue_mean_sl, SLOT(setValue(int)));
     QLabel* hue_mean_lb = new QLabel(tr("Mean"));
     hue_mean_lb->setBuddy(_hue_mean_sb);
-    hue_mean_lb->setToolTip(tr("Hue corresponds to the laser wavelength.\nReference values:\n0 for a red laser\n60 for a green laser\n120 for a blue laser."));
+    hue_mean_lb->setToolTip(tr("Hue corresponds to the laser wavelength.\nReference values:\n0 for red laser\n60 for green laser\n120 for blue laser."));
     // Hue span
     QSlider* hue_span_sl = new QSlider(Qt::Horizontal);
     hue_span_sl->setRange(1, 180);

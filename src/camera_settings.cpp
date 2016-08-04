@@ -85,14 +85,14 @@ CameraSettings::CameraSettings(
     connect(_flip_x_cb, &QCheckBox::toggled, video_frame_grabber, &VideoFrameGrabber::setFlipX);
     _flip_x_cb->setChecked(settings.value("CameraSettings/flip_x", true).toBool());
     QLabel* flip_x_lb = new QLabel(tr("Flip X:"));
-    flip_x_lb->setToolTip(tr("Flip horisontally the camera image"));
+    flip_x_lb->setToolTip(tr("Horizontal flip"));
     flip_x_lb->setBuddy(_flip_x_cb);
 
     _flip_y_cb = new QCheckBox();
     connect(_flip_y_cb, &QCheckBox::toggled, video_frame_grabber, &VideoFrameGrabber::setFlipY);
     _flip_y_cb->setChecked(settings.value("CameraSettings/flip_y", false).toBool());
     QLabel* flip_y_lb = new QLabel(tr("Flip Y:"));
-    flip_y_lb->setToolTip(tr("Flip vertically the camera image"));
+    flip_y_lb->setToolTip(tr("Vertical flip"));
     flip_y_lb->setBuddy(_flip_y_cb);
 
     updateAvailableCameras(true);

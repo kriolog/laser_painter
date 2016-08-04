@@ -43,7 +43,7 @@ void MainWindow::createActions()
 
     _exit_act = new QAction(QIcon::fromTheme("application-exit"), tr("E&xit"), this);
     _exit_act->setShortcuts(QKeySequence::Quit);
-    _exit_act->setStatusTip(tr("Exit the application"));
+    _exit_act->setStatusTip(tr("Exit application"));
     connect(_exit_act,  &QAction::triggered, this, &MainWindow::close);
 
     // Streams are the camera capture and the lasetr tracker
@@ -63,7 +63,7 @@ void MainWindow::createActions()
     _camera_tracker_act->setCheckable(true);
     _camera_tracker_act->setChecked(true);
 
-    _full_screen_act = new QAction(tr("Full Screen Mode"), this);
+    _full_screen_act = new QAction(tr("Full-screen Mode"), this);
     _full_screen_act->setCheckable(true);
     _full_screen_act->setShortcut(QKeySequence(tr("Ctrl+F", "ToggleFullScreenExitFullScreen")));
     _exit_act->setStatusTip(tr("Press Esc to exit fulls screen mode"));

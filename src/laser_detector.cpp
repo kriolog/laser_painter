@@ -120,7 +120,7 @@ void LaserDetector::run(const QImage& image) const
 
         // Blob subimage
         cv::Mat blob(blob_rect.size(), CV_8UC1, cv::Scalar(0));
-        cv::drawContours(blob, contours, i, cv::Scalar(255), CV_FILLED, cv::LINE_4, cv::noArray(), 0, -blob_rect.tl());
+        cv::drawContours(blob, contours, i, cv::Scalar(255), CV_FILLED, 4, cv::noArray(), 0, -blob_rect.tl());
 
         // Blob crown subimage
         cv::Mat blob_crown;
